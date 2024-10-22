@@ -19,6 +19,8 @@ const Payment = ({ order, clearOrder }) => {
   };
 
   const handlePay = () => {
+    if (order.length === 0) return; 
+
     const orderData = {
       orderItems: order.map((item) => ({
         name: item.name,
@@ -28,8 +30,6 @@ const Payment = ({ order, clearOrder }) => {
       })),
       totalAmount: totalWithDiscount,
     };
-
-    // Referencia de lo del Json, solo lo había hecho con python :( https://theroadtoenterprise.com/blog/how-to-download-csv-and-json-files-in-react
 
     const fileName = 'NoSeQueEstoyHaciendo.json';
     const json = JSON.stringify(orderData, null, 2);
@@ -72,7 +72,8 @@ const Payment = ({ order, clearOrder }) => {
       </div>
       <button
         onClick={handlePay}
-        className="mt-5 w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg"
+        className={`mt-5 w-full ${order.length === 0 ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'} text-white px-4 py-2 rounded-lg`}
+        disabled={order.length === 0} 
       >
         Pagar
       </button>
