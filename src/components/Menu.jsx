@@ -4,7 +4,6 @@ const Menu = ({ addToOrder }) => {
   const [menuItems, setMenuItems] = useState([]);
   const [error, setError] = useState('');
 
-
   // Consumo de la API como nos enseñaste Rafa
   useEffect(() => {
     const fetchMenuItems = async () => {
@@ -20,15 +19,16 @@ const Menu = ({ addToOrder }) => {
       }
     };
     fetchMenuItems();
-  }, []); // Ester egg:  Se le dice al hook que debe ejecutarse solo una vez cuando el componente se renderiza, significa que no se volverá a ejecutar después.
+  }, []); // Ester egg: Con la lista vacía se le dice al hook que debe ejecutarse solo una vez cuando el componente se renderiza. Lo que significa que ya no se va a volver a ejecutar
 
   return (
-    <div>
+    <div className="h-full">
       <h2 className="text-2xl font-semibold mb-5 text-green-700">Nuestro Menú</h2>
       {error ? (
         <p className="text-red-600">{error}</p>
       ) : (
-        <div className="grid gap-6">
+        // Le tuve que modificar la altura y cosas que no sabía hacer muy bien con tailwind, las busqué :(
+        <div className="max-h-[720px] overflow-y-auto grid gap-6">
           {menuItems.map((item) => (
             <div key={item.id} className="flex justify-between items-center p-4 bg-white shadow-lg rounded-lg border-2 border-green-500">
               <div>

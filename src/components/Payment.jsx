@@ -29,6 +29,8 @@ const Payment = ({ order, clearOrder }) => {
       totalAmount: totalWithDiscount,
     };
 
+    // Referencia de lo del Json, solo lo había hecho con python :( https://theroadtoenterprise.com/blog/how-to-download-csv-and-json-files-in-react
+
     const fileName = 'NoSeQueEstoyHaciendo.json';
     const json = JSON.stringify(orderData, null, 2);
     const blob = new Blob([json], { type: 'application/json' });

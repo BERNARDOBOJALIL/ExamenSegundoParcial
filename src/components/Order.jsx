@@ -8,7 +8,7 @@ const Order = ({ order, increaseQuantity, decreaseQuantity, removeFromOrder }) =
       <h2 className="text-2xl font-semibold mb-5 text-green-700">Tu Orden</h2>
       <div className="bg-white p-4 shadow-lg rounded-lg border-2 border-red-500">
         {order.length === 0 ? (
-          <p className="text-red-600">No hay nadaaaaaaaaaaa.</p>
+          <p className="text-red-600">No hay nada. ¡Pide algo!</p>
         ) : (
           order.map((item) => (
             <div key={item.id} className="flex justify-between items-center mb-4">

@@ -60,10 +60,9 @@ function App() {
 
   return (
     <div className="min-h-screen bg-yellow-100">
-      {/* Header */}
       <header className="bg-red-600 text-white p-6 text-center">
-        <h1 className="text-4xl font-bold mb-2">Restaurante El Sabor Mexicano</h1>
-        <p className="italic">Auténtico sabor tradicional</p>
+        <h1 className="text-4xl font-bold mb-2">Restaurante El Sabor de Berny</h1>
+        <p className="italic">Disfruta el auténtico sabor de Atlixco</p>
       </header>
 
       <div className="container mx-auto p-5">
