@@ -3,6 +3,8 @@ import Menu from './components/Menu';
 import Order from './components/Order';
 import Payment from './components/Payment';
 
+
+//Lo hardcodeado de la API solo como referencia y guía para el programador
 const menuItems = [
   { id: 1, name: 'Tacos', price: 50 },
   { id: 2, name: 'Enchiladas', price: 60 },
