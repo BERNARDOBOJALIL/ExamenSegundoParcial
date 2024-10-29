@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { getMenu } from '../services/menuApi';
 
 const Menu = ({ addToOrder }) => {
   const [menuItems, setMenuItems] = useState([]);
@@ -6,19 +7,14 @@ const Menu = ({ addToOrder }) => {
 
   // Consumo de la API como nos enseñaste Rafa
   useEffect(() => {
-    const fetchMenuItems = async () => {
-      try {
-        const response = await fetch('https://api-menu-9b5g.onrender.com/menu'); 
-        if (!response.ok) {
-          throw new Error('Error fetching data');
-        }
-        const data = await response.json();
+    getMenu()
+      .then((data) => {
         setMenuItems(data);
-      } catch (error) {
-        setError('Error al cargar el menú');
-      }
-    };
-    fetchMenuItems();
+      })
+      .catch((error) => {
+        setError(error.message);
+      });
+    
   }, []); // Ester egg: Con la lista vacía se le dice al hook que debe ejecutarse solo una vez cuando el componente se renderiza. Lo que significa que ya no se va a volver a ejecutar
 
   return (
