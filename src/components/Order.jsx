@@ -1,8 +1,11 @@
-import React from 'react';
+import React, { useEffect} from 'react';
+import { getOrders } from '../services/orderService';
 
 const Order = ({ order, increaseQuantity, decreaseQuantity, removeFromOrder }) => {
   const totalAmount = order.reduce((total, item) => total + item.price * item.quantity, 0);
-
+  useEffect(() => {
+    getOrders()
+  }, []);
   return (
     <div>
       <h2 className="text-2xl font-semibold mb-5 text-green-700">Tu Orden</h2>
