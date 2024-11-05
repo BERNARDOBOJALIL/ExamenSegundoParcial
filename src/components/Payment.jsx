@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { addOrder } from '../services/orderService'; 
 import { Timestamp } from 'firebase/firestore'; 
 
 const Payment = ({ order, clearOrder }) => {
   const [discountCode, setDiscountCode] = useState('');
   const [discount, setDiscount] = useState(0);
-  const [paymentMethod, setPaymentMethod] = useState(''); 
+  const [paymentMethod, setPaymentMethod] = useState('');
+  const [orderProcessed, setOrderProcessed] = useState(false); // Nuevo estado
 
   const validDiscountCodes = {
     'EMMETT': 0.1,
@@ -30,7 +31,6 @@ const Payment = ({ order, clearOrder }) => {
       return;
     }
 
-    
     const orderData = {
       items: order.map((item) => ({
         name: item.name,
@@ -38,39 +38,32 @@ const Payment = ({ order, clearOrder }) => {
         quantity: item.quantity,
       })),
       payment: paymentMethod, 
-      timestamp: Timestamp.now(), 
-      total: totalWithDiscount, 
+      timestamp: Timestamp.now(),
+      total: totalWithDiscount,
     };
 
     try {
-      
       await addOrder(orderData);
       alert('Orden guardada en la base de datos.');
+      setOrderProcessed(true); 
     } catch (error) {
       console.error("Error al guardar la orden:", error);
       alert('Hubo un problema al guardar la orden.');
       return; 
     }
 
-    // Descarga del archivo JSON (comentado)
-    /*
-    const fileName = 'Orden.json';
-    const json = JSON.stringify(orderData, null, 2);
-    const blob = new Blob([json], { type: 'application/json' });
-    const href = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = href;
-    link.download = fileName;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    */
-
     clearOrder();
     alert('Gracias por su compra!');
-    window.location.reload();
   };
 
+  useEffect(() => {
+    if (orderProcessed) {
+      setOrderProcessed(false);
+      setDiscountCode('');
+      setDiscount(0);
+      setPaymentMethod('');
+    }
+  }, [orderProcessed]); 
   return (
     <div className="mt-10 p-6 bg-white shadow-lg rounded-lg border-2 border-green-500">
       <div className="mb-4">
