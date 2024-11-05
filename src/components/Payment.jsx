@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { addOrder } from '../services/orderService'; // Ajusta la ruta según tu estructura de carpetas
-import { Timestamp } from 'firebase/firestore'; // Asegúrate de importar Timestamp
+import { addOrder } from '../services/orderService'; 
+import { Timestamp } from 'firebase/firestore'; 
 
 const Payment = ({ order, clearOrder }) => {
   const [discountCode, setDiscountCode] = useState('');
