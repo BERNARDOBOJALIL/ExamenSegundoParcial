@@ -1,5 +1,4 @@
-import React, { useEffect} from 'react';
-import { getOrders } from '../services/orderService';
+import React from 'react';
 
 const Order = ({ order, increaseQuantity, decreaseQuantity, removeFromOrder }) => {
   const totalAmount = order.reduce((total, item) => total + item.price * item.quantity, 0);

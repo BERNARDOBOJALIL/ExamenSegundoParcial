@@ -1,8 +1,13 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Menu from './components/Menu';
 import Order from './components/Order';
 import Payment from './components/Payment';
 import History from './components/History';
+import Header from './components/Header';
+import LoginForm from './components/LoginForm';
+import { loginUser, logoutUser, getUserData } from './services/auth';
+import SessionManager from './services/sessionManager';
+import UserHistory from './components/UserHistory';
 
 const menuItems = [
   { id: 1, name: 'Tacos', price: 50 },
@@ -14,6 +19,23 @@ const menuItems = [
 function App() {
   const [order, setOrder] = useState([]);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userName, setUserName] = useState('');
+
+  useEffect(() => {
+    const fetchUserRole = async () => {
+      const userData = await getUserData();
+      if (userData && userData.role) {
+        setIsAdmin(userData.role === 'admin');
+        setIsAuthenticated(true);
+        setUserName(userData.name);
+      }
+    };
+
+    if (isAuthenticated) {
+      fetchUserRole();
+    }
+  }, [isAuthenticated]);
 
   const addToOrder = (item) => {
     setOrder((prevOrder) => {
@@ -58,20 +80,39 @@ function App() {
     setOrder([]);
   };
 
+  const handleLogin = (userData) => {
+    setIsAuthenticated(true);
+    setIsAdmin(userData.role === 'admin');
+    setUserName(userData.name);
+  };
+  const handleLogout = async () => {
+    const { error } = await logoutUser();
+    if (!error) {
+      localStorage.removeItem('userData');
+      setIsAuthenticated(false);
+      setIsAdmin(false);
+      setUserName('');
+    } else {
+      console.error('Error logging out:', error);
+    }
+  };
+  
+
   return (
     <div className="min-h-screen bg-yellow-100">
-      <header className="bg-red-600 text-white p-6 flex justify-between items-center">
-        <h1 className="text-4xl font-bold">Restaurante El Sabor de Berny</h1>
-        <button 
-          onClick={() => setIsAdmin(!isAdmin)}
-          className="bg-blue-500 text-white px-4 py-2 rounded-lg font-semibold"
-        >
-          {isAdmin ? "Salir del Modo Admin" : "Soy Administrador"}
-        </button>
-      </header>
-
+      <Header 
+        isAdmin={isAdmin} 
+        isAuthenticated={isAuthenticated} 
+        onLogout={handleLogout} 
+        userName={userName} 
+      />
+      <SessionManager onLogin={handleLogin} onLogout={handleLogout} inactivityLimit={60000} />
       <div className="container mx-auto p-5">
-        {!isAdmin ? (
+        {!isAuthenticated ? (
+          <LoginForm setIsAuthenticated={setIsAuthenticated} />
+        ) : isAdmin ? (
+          <History />
+        ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <Menu menuItems={menuItems} addToOrder={addToOrder} />
             <div>
@@ -82,11 +123,15 @@ function App() {
                 removeFromOrder={removeFromOrder}
                 clearOrder={clearOrder}
               />
-              <Payment order={order} clearOrder={clearOrder} />
+              <Payment order={order} clearOrder={clearOrder} clientName={userName} />
             </div>
           </div>
-        ) : (
-          <History />
+        )}
+      
+        {isAuthenticated && !isAdmin && (
+          <div className="mt-10">
+            <UserHistory clientName={userName} />
+          </div>
         )}
       </div>
     </div>

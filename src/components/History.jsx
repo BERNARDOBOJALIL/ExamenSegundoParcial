@@ -16,36 +16,15 @@ useEffect(() => {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const data = await getOrders();
-        const sortedChronologically = data.sort((a, b) => a.timestamp.seconds - b.timestamp.seconds);
-        const numberedData = sortedChronologically.map((order, index) => ({
-          ...order,
-          orderNumber: index + 1,
-        }));
-        
-        const filteredData = numberedData.filter((order) => {
-          const orderDate = new Date(order.timestamp.seconds * 1000);
-          const orderTime = orderDate.toTimeString().slice(0, 5);
-
-          const withinDateRange = (!startDate || orderDate >= new Date(`${startDate}T00:00`)) &&
-                                  (!endDate || orderDate <= new Date(`${endDate}T23:59`));
-          const withinTimeRange = (!startTime || orderTime >= startTime) &&
-                                  (!endTime || orderTime <= endTime);
-
-          return withinDateRange && withinTimeRange;
+        const data = await getOrders({
+          startDate,
+          endDate,
+          startTime,
+          endTime,
+          sortBy,
+          sortOrder,
         });
-
-        const sortedData = filteredData.sort((a, b) => {
-          let comparison = 0;
-          if (sortBy === 'date') {
-            comparison = b.timestamp.seconds - a.timestamp.seconds;
-          } else if (sortBy === 'total') {
-            comparison = b.total - a.total;
-          }
-          return sortOrder === 'asc' ? -comparison : comparison;
-        });
-
-        setOrdersFromDB(sortedData);
+        setOrdersFromDB(data);
       } catch (error) {
         console.error("Error fetching orders:", error);
       }
@@ -165,29 +144,31 @@ useEffect(() => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {ordersFromDB.map((dbOrder) => (
             <div key={dbOrder.id} className="bg-white p-4 shadow-lg rounded-lg border-2 border-blue-500 flex flex-col h-full">
-            <div className="flex-grow">
-              <p> Orden #{dbOrder.orderNumber}</p>
-              <p className="text-sm text-gray-500">Fecha: {new Date(dbOrder.timestamp.seconds * 1000).toLocaleString()}</p>
-              <p className="text-sm text-gray-500">Método de Pago: {dbOrder.payment}</p>
-              <h4 className="text-md font-semibold mt-2">Items:</h4>
-              {dbOrder.items.map((item, idx) => (
-                <div key={idx} className="flex justify-between items-center">
-                  <span>{item.name} x {item.quantity}</span>
-                  <span>${item.price * item.quantity}</span>
-                </div>
-              ))}
+              <div className="flex-grow">
+                <p>ID de Orden: {dbOrder.id}</p> {/* Muestra el ID en lugar de un número */}
+                <p className="text-sm text-gray-500">Fecha: {new Date(dbOrder.timestamp.seconds * 1000).toLocaleString()}</p>
+                <p className="text-sm text-gray-500">Cliente: {dbOrder.client || 'No especificado'}</p> {/* Muestra el nombre del cliente */}
+                <p className="text-sm text-gray-500">Método de Pago: {dbOrder.payment}</p>
+                <h4 className="text-md font-semibold mt-2">Items:</h4>
+                {dbOrder.items.map((item, idx) => (
+                  <div key={idx} className="flex justify-between items-center">
+                    <span>{item.name} x {item.quantity}</span>
+                    <span>${item.price * item.quantity}</span>
+                  </div>
+                ))}
+              </div>
+              <hr className="my-2" />
+              <div className="flex justify-between font-bold text-lg text-blue-700 mt-auto">
+                <span>Total:</span>
+                <span>${dbOrder.total}</span>
+              </div>
             </div>
-            <hr className="my-2" />
-            <div className="flex justify-between font-bold text-lg text-blue-700 mt-auto">
-              <span>Total:</span>
-              <span>${dbOrder.total}</span>
-            </div>
-          </div>
           ))}
         </div>
       </div>
     </div>
   );
 }
+
 
 export default History;

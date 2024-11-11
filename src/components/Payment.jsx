@@ -2,11 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { addOrder } from '../services/orderService'; 
 import { Timestamp } from 'firebase/firestore'; 
 
-const Payment = ({ order, clearOrder }) => {
+const Payment = ({ order, clearOrder, clientName }) => {
   const [discountCode, setDiscountCode] = useState('');
   const [discount, setDiscount] = useState(0);
   const [paymentMethod, setPaymentMethod] = useState('');
-  const [orderProcessed, setOrderProcessed] = useState(false); // Nuevo estado
+  const [orderProcessed, setOrderProcessed] = useState(false);
 
   const validDiscountCodes = {
     'EMMETT': 0.1,
@@ -37,19 +37,20 @@ const Payment = ({ order, clearOrder }) => {
         price: item.price,
         quantity: item.quantity,
       })),
-      payment: paymentMethod, 
+      payment: paymentMethod,
       timestamp: Timestamp.now(),
       total: totalWithDiscount,
+      client: clientName, 
     };
 
     try {
       await addOrder(orderData);
       alert('Orden guardada en la base de datos.');
-      setOrderProcessed(true); 
+      setOrderProcessed(true);
     } catch (error) {
       console.error("Error al guardar la orden:", error);
       alert('Hubo un problema al guardar la orden.');
-      return; 
+      return;
     }
 
     clearOrder();
@@ -62,10 +63,14 @@ const Payment = ({ order, clearOrder }) => {
       setDiscountCode('');
       setDiscount(0);
       setPaymentMethod('');
+
+      window.location.reload();
     }
-  }, [orderProcessed]); 
+  }, [orderProcessed]);
+
+  
   return (
-    <div className="mt-10 p-6 bg-white shadow-lg rounded-lg border-2 border-green-500">
+    <div className="mb-50 mt-10 p-6 bg-white shadow-lg rounded-lg border-2 border-green-500">
       <div className="mb-4">
         <input
           type="text"
