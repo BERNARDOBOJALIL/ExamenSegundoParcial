@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { getOrders } from '../services/orderService';
 
-function History() {
+function History({ isAuthenticated, onLogout, userName }) {
   const [ordersFromDB, setOrdersFromDB] = useState([]);
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
@@ -10,9 +10,6 @@ function History() {
   const [sortBy, setSortBy] = useState('date');
   const [sortOrder, setSortOrder] = useState('desc');
 
-useEffect(() => {
-    getOrders()
-  }, []);
   useEffect(() => {
     const fetchOrders = async () => {
       try {
@@ -26,7 +23,7 @@ useEffect(() => {
         });
         setOrdersFromDB(data);
       } catch (error) {
-        console.error("Error fetching orders:", error);
+        console.error('Error fetching orders:', error);
       }
     };
     fetchOrders();
@@ -44,12 +41,14 @@ useEffect(() => {
   return (
     <div>
       <div className="p-6 bg-amber-50 rounded-lg mt-6 shadow-md border-2 border-orange-400">
-      <div className="h-4 w-full bg-repeat-x mb-4" style={{
-        backgroundImage: `url("data:image/svg+xml,%3Csvg width='20' height='4' viewBox='0 0 20 4' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h4l4 4 4-4h4' fill='none' stroke='%23EA580C' stroke-width='1'/%3E%3C/svg%3E")`
-      }}></div>
-
-      <h3 className="text-2xl font-bold mb-4 text-orange-800">Filtros y Ordenación</h3>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div
+          className="h-4 w-full bg-repeat-x mb-4"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='20' height='4' viewBox='0 0 20 4' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h4l4 4 4-4h4' fill='none' stroke='%23EA580C' stroke-width='1'/%3E%3C/svg%3E")`,
+          }}
+        ></div>
+        <h3 className="text-2xl font-bold mb-4 text-orange-800">Filtros y Ordenación</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <div className="flex flex-col">
           <label className="text-sm font-semibold text-orange-700 mb-1">Fecha de Inicio</label>
           <input
@@ -133,42 +132,52 @@ useEffect(() => {
           </div>
         </button>
       </div>
-
-      <div className="h-4 w-full bg-repeat-x mt-4" style={{
-        backgroundImage: `url("data:image/svg+xml,%3Csvg width='20' height='4' viewBox='0 0 20 4' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 4h4l4-4 4 4h4' fill='none' stroke='%23EA580C' stroke-width='1'/%3E%3C/svg%3E")`
-      }}></div>
-    </div>
+        <div
+          className="h-4 w-full bg-repeat-x mt-4"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='20' height='4' viewBox='0 0 20 4' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 4h4l4-4 4 4h4' fill='none' stroke='%23EA580C' stroke-width='1'/%3E%3C/svg%3E")`,
+          }}
+        ></div>
+      </div>
 
       <div className="mt-10">
         <h2 className="text-2xl font-semibold text-center text-green-700 mb-4">Historial</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {ordersFromDB.map((dbOrder) => (
-            <div key={dbOrder.id} className="bg-white p-4 shadow-lg rounded-lg border-2 border-blue-500 flex flex-col h-full">
-              <div className="flex-grow">
-                <p>ID de Orden: {dbOrder.id}</p> {/* Muestra el ID en lugar de un número */}
-                <p className="text-sm text-gray-500">Fecha: {new Date(dbOrder.timestamp.seconds * 1000).toLocaleString()}</p>
-                <p className="text-sm text-gray-500">Cliente: {dbOrder.client || 'No especificado'}</p> {/* Muestra el nombre del cliente */}
-                <p className="text-sm text-gray-500">Método de Pago: {dbOrder.payment}</p>
-                <h4 className="text-md font-semibold mt-2">Items:</h4>
-                {dbOrder.items.map((item, idx) => (
-                  <div key={idx} className="flex justify-between items-center">
-                    <span>{item.name} x {item.quantity}</span>
-                    <span>${item.price * item.quantity}</span>
-                  </div>
-                ))}
+          {ordersFromDB.length === 0 ? (
+            <p className="text-center text-gray-500">No se encontraron órdenes.</p>
+          ) : (
+            ordersFromDB.map((dbOrder) => (
+              <div key={dbOrder.id} className="bg-white p-4 shadow-lg rounded-lg border-2 border-blue-500 flex flex-col h-full">
+                <div className="flex-grow">
+                  <p>ID de Orden: {dbOrder.id}</p>
+                  <p className="text-sm text-gray-500">
+                    Fecha:{' '}
+                    {dbOrder.timestamp?.seconds
+                      ? new Date(dbOrder.timestamp.seconds * 1000).toLocaleString()
+                      : 'No disponible'}
+                  </p>
+                  <p className="text-sm text-gray-500">Cliente: {dbOrder.client || 'No especificado'}</p>
+                  <p className="text-sm text-gray-500">Método de Pago: {dbOrder.payment || 'Desconocido'}</p>
+                  <h4 className="text-md font-semibold mt-2">Items:</h4>
+                  {dbOrder.items.map((item, idx) => (
+                    <div key={idx} className="flex justify-between items-center">
+                      <span>{item.name} x {item.quantity}</span>
+                      <span>${item.price * item.quantity}</span>
+                    </div>
+                  ))}
+                </div>
+                <hr className="my-2" />
+                <div className="flex justify-between font-bold text-lg text-blue-700 mt-auto">
+                  <span>Total:</span>
+                  <span>${dbOrder.total}</span>
+                </div>
               </div>
-              <hr className="my-2" />
-              <div className="flex justify-between font-bold text-lg text-blue-700 mt-auto">
-                <span>Total:</span>
-                <span>${dbOrder.total}</span>
-              </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </div>
     </div>
   );
 }
-
 
 export default History;

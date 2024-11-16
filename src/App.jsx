@@ -8,6 +8,9 @@ import LoginForm from './components/LoginForm';
 import { loginUser, logoutUser, getUserData } from './services/auth';
 import SessionManager from './services/sessionManager';
 import UserHistory from './components/UserHistory';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import PrivateRoute from './components/PrivateRoute'; 
+import PublicRoute from './components/PublicRoute';   
 
 const menuItems = [
   { id: 1, name: 'Tacos', price: 50 },
@@ -85,6 +88,7 @@ function App() {
     setIsAdmin(userData.role === 'admin');
     setUserName(userData.name);
   };
+
   const handleLogout = async () => {
     const { error } = await logoutUser();
     if (!error) {
@@ -96,45 +100,87 @@ function App() {
       console.error('Error logging out:', error);
     }
   };
-  
 
   return (
-    <div className="min-h-screen bg-yellow-100">
-      <Header 
-        isAdmin={isAdmin} 
-        isAuthenticated={isAuthenticated} 
-        onLogout={handleLogout} 
-        userName={userName} 
-      />
+    <Router>
       <SessionManager onLogin={handleLogin} onLogout={handleLogout} inactivityLimit={60000} />
-      <div className="container mx-auto p-5">
-        {!isAuthenticated ? (
-          <LoginForm setIsAuthenticated={setIsAuthenticated} />
-        ) : isAdmin ? (
-          <History />
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <Menu menuItems={menuItems} addToOrder={addToOrder} />
-            <div>
-              <Order
-                order={order}
-                increaseQuantity={increaseQuantity}
-                decreaseQuantity={decreaseQuantity}
-                removeFromOrder={removeFromOrder}
-                clearOrder={clearOrder}
-              />
-              <Payment order={order} clearOrder={clearOrder} clientName={userName} />
-            </div>
-          </div>
-        )}
-      
-        {isAuthenticated && !isAdmin && (
-          <div className="mt-10">
-            <UserHistory clientName={userName} />
-          </div>
-        )}
+      <div className="min-h-screen bg-yellow-100">
+        <Header
+          isAdmin={isAdmin}
+          isAuthenticated={isAuthenticated}
+          onLogout={handleLogout}
+          userName={userName}
+        />
+        <div className="container mx-auto p-5">
+          <Routes>
+            <Route
+              path="/login"
+              element={
+                <PublicRoute isAuthenticated={isAuthenticated}>
+                  <LoginForm setIsAuthenticated={setIsAuthenticated} />
+                </PublicRoute>
+              }
+            />
+            <Route
+              path="/history"
+              element={
+                <PrivateRoute isAuthenticated={isAuthenticated}>
+                  {isAdmin ? <History /> : <Navigate to="/" />}
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/order"
+              element={
+                <PrivateRoute isAuthenticated={isAuthenticated}>
+                  {isAdmin ? (
+                    <Navigate to="/history" />
+                  ) : (
+                    <Order
+                      order={order}
+                      increaseQuantity={increaseQuantity}
+                      decreaseQuantity={decreaseQuantity}
+                      removeFromOrder={removeFromOrder}
+                      clearOrder={clearOrder}
+                      menuItems={menuItems}
+                      addToOrder={addToOrder}
+                      userName={userName}
+                      isAuthenticated={isAuthenticated}
+                      isAdmin={isAdmin}
+                      onLogout={handleLogout}
+                    />
+                  )}
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/"
+              element={
+                <PrivateRoute isAuthenticated={isAuthenticated}>
+                  {isAdmin ? (
+                    <History />
+                  ) : (
+                    <Order
+                      order={order}
+                      increaseQuantity={increaseQuantity}
+                      decreaseQuantity={decreaseQuantity}
+                      removeFromOrder={removeFromOrder}
+                      clearOrder={clearOrder}
+                      menuItems={menuItems}
+                      addToOrder={addToOrder}
+                      userName={userName}
+                      isAuthenticated={isAuthenticated}
+                      isAdmin={isAdmin}
+                      onLogout={handleLogout}
+                    />
+                  )}
+                </PrivateRoute>
+              }
+            />
+          </Routes>
+        </div>
       </div>
-    </div>
+    </Router>
   );
 }
 

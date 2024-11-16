@@ -1,4 +1,6 @@
 import React from 'react';
+import { Button } from "@/components/ui/button"
+
 
 const Header = ({ isAuthenticated, onLogout, userName }) => {
   return (
@@ -8,12 +10,8 @@ const Header = ({ isAuthenticated, onLogout, userName }) => {
       {isAuthenticated && (
         <div className="flex items-center gap-4">
           <span className="text-lg">Hola, {userName}!</span> 
-          <button 
-            onClick={onLogout}
-            className="bg-blue-500 text-white px-4 py-2 rounded-lg font-semibold"
-          >
-            Cerrar Sesión
-          </button>
+          <Button variant="outline" onClick={onLogout}>Cerrar Sesión</Button>
+        
         </div>
       )}
     </header>
