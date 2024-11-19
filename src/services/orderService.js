@@ -70,5 +70,34 @@ const addOrder = async (order) => {
     }
 };
 
-export { getOrders, addOrder };
+// Get Tables
+const getTables = async () => {
+    try {
+      console.log('Attempting to fetch tables from Firestore...');
+      
+      const tablesCollection = collection(db, 'Tables');
+      const snapshot = await getDocs(tablesCollection);
+  
+      if (snapshot.empty) {
+        console.log('No tables found in Firestore.');
+        return [];
+      }
+  
+      console.log('Snapshot received. Mapping data...');
+      const tables = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+  
+      console.log('Tables fetched successfully:', tables);
+      return tables;
+  
+    } catch (error) {
+      console.error('Error fetching tables:', error);
+      return [];
+    }
+  };
+  
+
+export { getOrders, addOrder, getTables };
 

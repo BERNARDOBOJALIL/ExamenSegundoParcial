@@ -10,7 +10,9 @@ import SessionManager from './services/sessionManager';
 import UserHistory from './components/UserHistory';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import PrivateRoute from './components/PrivateRoute'; 
-import PublicRoute from './components/PublicRoute';   
+import PublicRoute from './components/PublicRoute';
+import { resetTableState } from './services/tablesService';  // Importa la función que actualiza el estado de la mesa
+
 
 const menuItems = [
   { id: 1, name: 'Tacos', price: 50 },
@@ -24,6 +26,7 @@ function App() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userName, setUserName] = useState('');
+  const [selectedTable, setSelectedTable] = useState(null);  // Añadido para almacenar la mesa seleccionada
 
   useEffect(() => {
     const fetchUserRole = async () => {
@@ -39,6 +42,35 @@ function App() {
       fetchUserRole();
     }
   }, [isAuthenticated]);
+
+  // Función de cierre de sesión
+  const handleLogout = async () => {
+    const { error } = await logoutUser();
+    if (!error) {
+      // Agregar validación para verificar si 'selectedTable' tiene un valor válido
+      if (selectedTable) {
+        console.log('Restableciendo el estado de la mesa:', selectedTable);
+        await resetTableState(selectedTable);  // Cambia el estado de la mesa a desocupada
+      } else {
+        console.log('No hay mesa seleccionada para restablecer el estado.');
+      }
+  
+      localStorage.removeItem('userData');
+      localStorage.removeItem('selectedTable');
+      setIsAuthenticated(false);
+      setIsAdmin(false);
+      setUserName('');
+      setSelectedTable(null);  // Limpiar la mesa seleccionada
+    } else {
+      console.error('Error logging out:', error);
+    }
+  };
+
+  // Función que maneja la selección de mesa
+  const handleTableSelect = (table) => {
+    setSelectedTable(table);  // Guardar la mesa seleccionada en el estado
+    localStorage.setItem('selectedTable', table);  // Guardar en el localStorage
+  };
 
   const addToOrder = (item) => {
     setOrder((prevOrder) => {
@@ -89,21 +121,14 @@ function App() {
     setUserName(userData.name);
   };
 
-  const handleLogout = async () => {
-    const { error } = await logoutUser();
-    if (!error) {
-      localStorage.removeItem('userData');
-      setIsAuthenticated(false);
-      setIsAdmin(false);
-      setUserName('');
-    } else {
-      console.error('Error logging out:', error);
-    }
-  };
-
   return (
     <Router>
-      <SessionManager onLogin={handleLogin} onLogout={handleLogout} inactivityLimit={60000} />
+      <SessionManager 
+        onLogin={handleLogin} 
+        onLogout={handleLogout} 
+        onTableSelect={handleTableSelect} 
+        inactivityLimit={60000} 
+      />
       <div className="min-h-screen bg-yellow-100">
         <Header
           isAdmin={isAdmin}
@@ -148,6 +173,8 @@ function App() {
                       isAuthenticated={isAuthenticated}
                       isAdmin={isAdmin}
                       onLogout={handleLogout}
+                      selectedTable={selectedTable}  // Pasamos la mesa seleccionada
+                      setSelectedTable={setSelectedTable}  // Pasamos el setter de la mesa seleccionada
                     />
                   )}
                 </PrivateRoute>
@@ -172,6 +199,8 @@ function App() {
                       isAuthenticated={isAuthenticated}
                       isAdmin={isAdmin}
                       onLogout={handleLogout}
+                      selectedTable={selectedTable}  // Pasamos la mesa seleccionada
+                      setSelectedTable={setSelectedTable}  // Pasamos el setter de la mesa seleccionada
                     />
                   )}
                 </PrivateRoute>
