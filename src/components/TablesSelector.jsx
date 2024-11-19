@@ -21,7 +21,6 @@ const TableSelector = ({ onTableSelect }) => {
 
     fetchTables();
   }, []);
-
   const handleTableSelection = async (tableNumber) => {
     const selected = tables.find((table) => table.Table_number === tableNumber);
 

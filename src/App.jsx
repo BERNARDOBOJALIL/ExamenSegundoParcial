@@ -8,7 +8,8 @@ import SessionManager from './services/sessionManager';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import PrivateRoute from './components/PrivateRoute'; 
 import PublicRoute from './components/PublicRoute';
-import { resetTableState } from './services/tablesService';  
+import { resetTableState } from './services/tablesService'; 
+import History from './components/History'; 
 
 
 const menuItems = [
@@ -56,6 +57,7 @@ function App() {
       setIsAdmin(false);
       setUserName('');
       setSelectedTable(null); 
+      setOrder([])
     } else {
       console.error('Error logging out:', error);
     }
@@ -122,7 +124,7 @@ function App() {
         onLogin={handleLogin} 
         onLogout={handleLogout} 
         onTableSelect={handleTableSelect} 
-        inactivityLimit={60000} 
+        inactivityLimit={3600000} 
       />
       <div className="min-h-screen bg-yellow-100">
         <Header
@@ -145,7 +147,8 @@ function App() {
               path="/menu"
               element={
                 <PrivateRoute isAuthenticated={isAuthenticated}>
-                  <Menu addToOrder={addToOrder} order={order} setOrder={setOrder} />
+                  <Menu addToOrder={addToOrder} order={order} setOrder={setOrder} selectedTable = {selectedTable}
+                    setSelectedTable = {setSelectedTable}/>
                 </PrivateRoute>
               }
             />
@@ -153,9 +156,6 @@ function App() {
               path="/cart"
               element={
                 <PrivateRoute isAuthenticated={isAuthenticated}>
-                  {isAdmin ? (
-                    <Navigate to="/history" />
-                  ) : (
                     <Order
                       order={order}
                       increaseQuantity={increaseQuantity}
@@ -166,12 +166,10 @@ function App() {
                       addToOrder={addToOrder}
                       userName={userName}
                       isAuthenticated={isAuthenticated}
-                      isAdmin={isAdmin}
                       onLogout={handleLogout}
                       selectedTable={selectedTable}  
                       setSelectedTable={setSelectedTable}  
                     />
-                  )}
                 </PrivateRoute>
               }
             />
@@ -182,7 +180,7 @@ function App() {
                   {isAdmin ? (
                     <History />
                   ) : (
-                    <Order
+                    <Menu
                       order={order}
                       increaseQuantity={increaseQuantity}
                       decreaseQuantity={decreaseQuantity}
@@ -195,7 +193,8 @@ function App() {
                       isAdmin={isAdmin}
                       onLogout={handleLogout}
                       selectedTable={selectedTable}  
-                      setSelectedTable={setSelectedTable}  
+                      setSelectedTable={setSelectedTable} 
+                      setOrder={setOrder}
                     />
                   )}
                 </PrivateRoute>

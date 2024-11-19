@@ -14,33 +14,12 @@ const Order = ({
   menuItems,
   addToOrder,
   userName,
-  isAuthenticated,
-  selectedTable,
-  setSelectedTable,
+  isAuthenticated,selectedTable
 }) => {
-  const navigate = useNavigate();
-  useEffect(() => {
-    const savedTable = localStorage.getItem('selectedTable');
-    if (savedTable && savedTable !== "null") {
-      setSelectedTable(savedTable);  
-    } else {
-      setSelectedTable(null); 
-    }
-  }, [setSelectedTable]);
-
-  useEffect(() => {
-    if (selectedTable) {
-      localStorage.setItem('selectedTable', selectedTable);  
-    }
-  }, [selectedTable]);
-
-  const handleTableSelect = (tableNumber) => {
-    setSelectedTable(tableNumber);  
-  };
 
 
   const totalAmount = order.reduce((total, item) => total + item.price * item.quantity, 0);
-
+  navigate = useNavigate()
   const goToMenu = () => {
     navigate('/menu');
   };
@@ -48,11 +27,7 @@ const Order = ({
   return (
     <div className="min-h-screen bg-yellow-100">
       <div className="container mx-auto p-5 grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {!selectedTable ? (
-          <div className="col-span-3">
-            <TableSelector onTableSelect={handleTableSelect} />
-          </div>
-        ) : (
+       
           <>
             <div className="col-span-1 space-y-4">
               <h2 className="text-2xl font-semibold text-green-700">
@@ -112,7 +87,7 @@ const Order = ({
             </div>
             
           </>
-        )}
+
       </div>
     </div>
   );
