@@ -6,14 +6,24 @@ import LoginForm from './components/LoginForm';
 import { loginUser, logoutUser, getUserData } from './services/auth';
 import SessionManager from './services/sessionManager';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import PrivateRoute from './components/PrivateRoute';
+import PrivateRoute from './components/PrivateRoute'; 
 import PublicRoute from './components/PublicRoute';
+import { resetTableState } from './services/tablesService';  
+
+
+const menuItems = [
+  { id: 1, name: 'Tacos', price: 50 },
+  { id: 2, name: 'Enchiladas', price: 60 },
+  { id: 3, name: 'Quesadillas', price: 45 },
+  { id: 4, name: 'Pozole', price: 70 },
+];
 
 function App() {
   const [order, setOrder] = useState([]);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userName, setUserName] = useState('');
+  const [selectedTable, setSelectedTable] = useState(null);  
 
   useEffect(() => {
     const fetchUserRole = async () => {
@@ -29,6 +39,33 @@ function App() {
       fetchUserRole();
     }
   }, [isAuthenticated]);
+
+  const handleLogout = async () => {
+    const { error } = await logoutUser();
+    if (!error) {
+      if (selectedTable) {
+        console.log('Restableciendo el estado de la mesa:', selectedTable);
+        await resetTableState(selectedTable);  
+      } else {
+        console.log('No hay mesa seleccionada para restablecer el estado.');
+      }
+  
+      localStorage.removeItem('userData');
+      localStorage.removeItem('selectedTable');
+      setIsAuthenticated(false);
+      setIsAdmin(false);
+      setUserName('');
+      setSelectedTable(null); 
+    } else {
+      console.error('Error logging out:', error);
+    }
+  };
+
+  
+  const handleTableSelect = (table) => {
+    setSelectedTable(table);  
+    localStorage.setItem('selectedTable', table);  
+  };
 
   const addToOrder = (item) => {
     setOrder((prevOrder) => {
@@ -79,24 +116,14 @@ function App() {
     setUserName(userData.name);
   };
 
-  const handleLogout = async () => {
-    const { error } = await logoutUser();
-    if (!error) {
-      // Eliminar orden del usuario actual
-      localStorage.removeItem(`order_${userName}`);
-      localStorage.removeItem('userData');
-      setIsAuthenticated(false);
-      setIsAdmin(false);
-      setUserName('');
-      setOrder([]); // Limpiar la orden
-    } else {
-      console.error('Error logging out:', error);
-    }
-  };
-
   return (
     <Router>
-      <SessionManager onLogin={handleLogin} onLogout={handleLogout} inactivityLimit={3600000} />
+      <SessionManager 
+        onLogin={handleLogin} 
+        onLogout={handleLogout} 
+        onTableSelect={handleTableSelect} 
+        inactivityLimit={60000} 
+      />
       <div className="min-h-screen bg-yellow-100">
         <Header
           isAdmin={isAdmin}
@@ -126,26 +153,52 @@ function App() {
               path="/cart"
               element={
                 <PrivateRoute isAuthenticated={isAuthenticated}>
-                  <Order
-                    order={order}
-                    increaseQuantity={increaseQuantity}
-                    decreaseQuantity={decreaseQuantity}
-                    removeFromOrder={removeFromOrder}
-                    clearOrder={clearOrder}
-                    menuItems={[]}
-                    addToOrder={addToOrder}
-                    userName={userName}
-                    isAuthenticated={isAuthenticated}
-                    isAdmin={isAdmin}
-                    onLogout={handleLogout}
-                  />
+                  {isAdmin ? (
+                    <Navigate to="/history" />
+                  ) : (
+                    <Order
+                      order={order}
+                      increaseQuantity={increaseQuantity}
+                      decreaseQuantity={decreaseQuantity}
+                      removeFromOrder={removeFromOrder}
+                      clearOrder={clearOrder}
+                      menuItems={menuItems}
+                      addToOrder={addToOrder}
+                      userName={userName}
+                      isAuthenticated={isAuthenticated}
+                      isAdmin={isAdmin}
+                      onLogout={handleLogout}
+                      selectedTable={selectedTable}  
+                      setSelectedTable={setSelectedTable}  
+                    />
+                  )}
                 </PrivateRoute>
               }
             />
             <Route
               path="/"
               element={
-                <Navigate to={isAuthenticated ? '/menu' : '/login'} />
+                <PrivateRoute isAuthenticated={isAuthenticated}>
+                  {isAdmin ? (
+                    <History />
+                  ) : (
+                    <Order
+                      order={order}
+                      increaseQuantity={increaseQuantity}
+                      decreaseQuantity={decreaseQuantity}
+                      removeFromOrder={removeFromOrder}
+                      clearOrder={clearOrder}
+                      menuItems={menuItems}
+                      addToOrder={addToOrder}
+                      userName={userName}
+                      isAuthenticated={isAuthenticated}
+                      isAdmin={isAdmin}
+                      onLogout={handleLogout}
+                      selectedTable={selectedTable}  
+                      setSelectedTable={setSelectedTable}  
+                    />
+                  )}
+                </PrivateRoute>
               }
             />
           </Routes>
