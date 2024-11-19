@@ -9,7 +9,7 @@ const Tables = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [deleteTableId, setDeleteTableId] = useState(null);
 
-  // Obtener las mesas desde Firestore
+  
   useEffect(() => {
     const fetchTables = async () => {
       const tablesData = await getTables();
@@ -19,7 +19,7 @@ const Tables = () => {
     fetchTables();
   }, []);
 
-  // Manejar la creación de una nueva mesa
+
   const handleCreateTable = async (e) => {
     e.preventDefault();
     if (!newTableNumber || isNaN(Number(newTableNumber))) {
@@ -29,9 +29,8 @@ const Tables = () => {
     }
 
     await createTable(newTableNumber);
-    setNewTableNumber(''); // Limpiar el campo del formulario
+    setNewTableNumber(''); 
 
-    // Actualizar las mesas después de agregar una nueva
     const updatedTables = await getTables();
     setTables(updatedTables);
 
@@ -39,7 +38,6 @@ const Tables = () => {
     setIsModalOpen(true);
   };
 
-  // Manejar la eliminación de una mesa
   const handleDeleteTable = async () => {
     if (deleteTableId) {
       await deleteTable(deleteTableId);
@@ -49,13 +47,12 @@ const Tables = () => {
     }
   };
 
-  // Alternar el estado de la mesa
   const toggleTableState = async (tableId, currentState) => {
     try {
-      const newState = !currentState; // Cambiar estado
-      await updateTableState(tableId, newState); // Actualizar en Firestore
+      const newState = !currentState; 
+      await updateTableState(tableId, newState); 
 
-      // Actualizar la lista local sin volver a consultar
+      
       const updatedTables = tables.map((table) =>
         table.id === tableId ? { ...table, state: newState } : table
       );
@@ -65,14 +62,14 @@ const Tables = () => {
     }
   };
 
-  // Cerrar el modal
+  
   const closeModal = () => {
     setModalMessage('');
     setIsModalOpen(false);
     setDeleteTableId(null);
   };
 
-  // Abrir modal para eliminar
+  
   const openDeleteModal = (tableId) => {
     setDeleteTableId(tableId);
     setModalMessage('¿Estás seguro de que deseas eliminar esta mesa?');
@@ -81,7 +78,6 @@ const Tables = () => {
 
   return (
     <div className="min-h-screen bg-yellow-100 p-5">
-      {/* Formulario para agregar nuevas mesas */}
       <div className="mb-6 p-4 bg-yellow-100 shadow rounded-lg">
         <h2 className="text-2xl font-semibold mb-4">Agregar nueva mesa</h2>
         <form onSubmit={handleCreateTable} className="flex gap-4 items-center">
@@ -101,7 +97,6 @@ const Tables = () => {
         </form>
       </div>
 
-      {/* Mostrar las mesas */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {tables.map((table) => (
           <div
@@ -134,7 +129,6 @@ const Tables = () => {
         ))}
       </div>
 
-      {/* Modal para mensajes y confirmación */}
       <Modal
         isOpen={isModalOpen}
         onRequestClose={closeModal}

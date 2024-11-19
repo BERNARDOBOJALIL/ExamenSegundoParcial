@@ -8,8 +8,7 @@ const getTables = async () => {
 
     
     const tablesCollection = collection(db, 'Tables');
-    const tablesQuery = query(tablesCollection, orderBy('Table_number', 'asc')); // Cambia 'asc' a 'desc' si necesitas descendente
-
+    const tablesQuery = query(tablesCollection, orderBy('Table_number', 'asc')); 
     const snapshot = await getDocs(tablesQuery);
 
     if (snapshot.empty) {
@@ -91,7 +90,7 @@ const createTable = async (tableNumber) => {
     const tablesCollection = collection(db, 'Tables');
     const newTable = {
       Table_number: tableNumberAsNumber,
-      State: false, // La mesa comienza como desocupada
+      State: false, 
     };
 
     const docRef = await addDoc(tablesCollection, newTable);

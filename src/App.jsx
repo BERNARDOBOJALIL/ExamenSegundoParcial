@@ -11,7 +11,7 @@ import UserHistory from './components/UserHistory';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import PrivateRoute from './components/PrivateRoute'; 
 import PublicRoute from './components/PublicRoute';
-import { resetTableState } from './services/tablesService';  // Importa la función que actualiza el estado de la mesa
+import { resetTableState } from './services/tablesService';  
 
 
 const menuItems = [
@@ -26,7 +26,7 @@ function App() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userName, setUserName] = useState('');
-  const [selectedTable, setSelectedTable] = useState(null);  // Añadido para almacenar la mesa seleccionada
+  const [selectedTable, setSelectedTable] = useState(null);  
 
   useEffect(() => {
     const fetchUserRole = async () => {
@@ -43,14 +43,12 @@ function App() {
     }
   }, [isAuthenticated]);
 
-  // Función de cierre de sesión
   const handleLogout = async () => {
     const { error } = await logoutUser();
     if (!error) {
-      // Agregar validación para verificar si 'selectedTable' tiene un valor válido
       if (selectedTable) {
         console.log('Restableciendo el estado de la mesa:', selectedTable);
-        await resetTableState(selectedTable);  // Cambia el estado de la mesa a desocupada
+        await resetTableState(selectedTable);  
       } else {
         console.log('No hay mesa seleccionada para restablecer el estado.');
       }
@@ -60,16 +58,16 @@ function App() {
       setIsAuthenticated(false);
       setIsAdmin(false);
       setUserName('');
-      setSelectedTable(null);  // Limpiar la mesa seleccionada
+      setSelectedTable(null); 
     } else {
       console.error('Error logging out:', error);
     }
   };
 
-  // Función que maneja la selección de mesa
+  
   const handleTableSelect = (table) => {
-    setSelectedTable(table);  // Guardar la mesa seleccionada en el estado
-    localStorage.setItem('selectedTable', table);  // Guardar en el localStorage
+    setSelectedTable(table);  
+    localStorage.setItem('selectedTable', table);  
   };
 
   const addToOrder = (item) => {
@@ -173,8 +171,8 @@ function App() {
                       isAuthenticated={isAuthenticated}
                       isAdmin={isAdmin}
                       onLogout={handleLogout}
-                      selectedTable={selectedTable}  // Pasamos la mesa seleccionada
-                      setSelectedTable={setSelectedTable}  // Pasamos el setter de la mesa seleccionada
+                      selectedTable={selectedTable}  
+                      setSelectedTable={setSelectedTable}  
                     />
                   )}
                 </PrivateRoute>
@@ -199,8 +197,8 @@ function App() {
                       isAuthenticated={isAuthenticated}
                       isAdmin={isAdmin}
                       onLogout={handleLogout}
-                      selectedTable={selectedTable}  // Pasamos la mesa seleccionada
-                      setSelectedTable={setSelectedTable}  // Pasamos el setter de la mesa seleccionada
+                      selectedTable={selectedTable}  
+                      setSelectedTable={setSelectedTable}  
                     />
                   )}
                 </PrivateRoute>

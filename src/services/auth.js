@@ -71,18 +71,15 @@ const logoutUser = async () => {
   }
 };
 
-// Nueva función para iniciar sesión con Google
 const loginWithGoogle = async () => {
   try {
     const result = await signInWithPopup(auth, googleProvider);
     const user = result.user;
 
-    // Verifica si el usuario ya está registrado en Firestore
     const userDoc = doc(db, 'Users', user.uid);
     const docSnapshot = await getDoc(userDoc);
 
     if (!docSnapshot.exists()) {
-      // Si el usuario no existe, lo registra automáticamente
       await setDoc(userDoc, {
         name: user.displayName,
         email: user.email,

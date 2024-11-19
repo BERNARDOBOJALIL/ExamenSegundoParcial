@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getTables, updateTableState } from '../services/tablesService';
-import { FaChair } from 'react-icons/fa'; // Biblioteca react-icons para usar el ícono de silla
+import { FaChair } from 'react-icons/fa'; 
 
 const TableSelector = ({ onTableSelect }) => {
   const [tables, setTables] = useState([]);
