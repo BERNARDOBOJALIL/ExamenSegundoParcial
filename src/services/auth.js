@@ -37,7 +37,8 @@ const registerUser = async (email, password, name) => {
 
     await setDoc(doc(db, 'Users', userId), {
       name: name,
-      role: 'user', 
+      role: 'client', 
+      email: email,
       createdAt: serverTimestamp(),
     });
 

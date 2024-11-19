@@ -1,23 +1,13 @@
 import { useState, useEffect } from 'react';
 import Menu from './components/Menu';
 import Order from './components/Order';
-import Payment from './components/Payment';
-import History from './components/History';
 import Header from './components/Header';
 import LoginForm from './components/LoginForm';
 import { loginUser, logoutUser, getUserData } from './services/auth';
 import SessionManager from './services/sessionManager';
-import UserHistory from './components/UserHistory';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import PrivateRoute from './components/PrivateRoute'; 
-import PublicRoute from './components/PublicRoute';   
-
-const menuItems = [
-  { id: 1, name: 'Tacos', price: 50 },
-  { id: 2, name: 'Enchiladas', price: 60 },
-  { id: 3, name: 'Quesadillas', price: 45 },
-  { id: 4, name: 'Pozole', price: 70 },
-];
+import PrivateRoute from './components/PrivateRoute';
+import PublicRoute from './components/PublicRoute';
 
 function App() {
   const [order, setOrder] = useState([]);
@@ -92,10 +82,13 @@ function App() {
   const handleLogout = async () => {
     const { error } = await logoutUser();
     if (!error) {
+      // Eliminar orden del usuario actual
+      localStorage.removeItem(`order_${userName}`);
       localStorage.removeItem('userData');
       setIsAuthenticated(false);
       setIsAdmin(false);
       setUserName('');
+      setOrder([]); // Limpiar la orden
     } else {
       console.error('Error logging out:', error);
     }
@@ -103,7 +96,7 @@ function App() {
 
   return (
     <Router>
-      <SessionManager onLogin={handleLogin} onLogout={handleLogout} inactivityLimit={60000} />
+      <SessionManager onLogin={handleLogin} onLogout={handleLogout} inactivityLimit={3600000} />
       <div className="min-h-screen bg-yellow-100">
         <Header
           isAdmin={isAdmin}
@@ -122,59 +115,37 @@ function App() {
               }
             />
             <Route
-              path="/history"
+              path="/menu"
               element={
                 <PrivateRoute isAuthenticated={isAuthenticated}>
-                  {isAdmin ? <History /> : <Navigate to="/" />}
+                  <Menu addToOrder={addToOrder} order={order} setOrder={setOrder} />
                 </PrivateRoute>
               }
             />
             <Route
-              path="/order"
+              path="/cart"
               element={
                 <PrivateRoute isAuthenticated={isAuthenticated}>
-                  {isAdmin ? (
-                    <Navigate to="/history" />
-                  ) : (
-                    <Order
-                      order={order}
-                      increaseQuantity={increaseQuantity}
-                      decreaseQuantity={decreaseQuantity}
-                      removeFromOrder={removeFromOrder}
-                      clearOrder={clearOrder}
-                      menuItems={menuItems}
-                      addToOrder={addToOrder}
-                      userName={userName}
-                      isAuthenticated={isAuthenticated}
-                      isAdmin={isAdmin}
-                      onLogout={handleLogout}
-                    />
-                  )}
+                  <Order
+                    order={order}
+                    increaseQuantity={increaseQuantity}
+                    decreaseQuantity={decreaseQuantity}
+                    removeFromOrder={removeFromOrder}
+                    clearOrder={clearOrder}
+                    menuItems={[]}
+                    addToOrder={addToOrder}
+                    userName={userName}
+                    isAuthenticated={isAuthenticated}
+                    isAdmin={isAdmin}
+                    onLogout={handleLogout}
+                  />
                 </PrivateRoute>
               }
             />
             <Route
               path="/"
               element={
-                <PrivateRoute isAuthenticated={isAuthenticated}>
-                  {isAdmin ? (
-                    <History />
-                  ) : (
-                    <Order
-                      order={order}
-                      increaseQuantity={increaseQuantity}
-                      decreaseQuantity={decreaseQuantity}
-                      removeFromOrder={removeFromOrder}
-                      clearOrder={clearOrder}
-                      menuItems={menuItems}
-                      addToOrder={addToOrder}
-                      userName={userName}
-                      isAuthenticated={isAuthenticated}
-                      isAdmin={isAdmin}
-                      onLogout={handleLogout}
-                    />
-                  )}
-                </PrivateRoute>
+                <Navigate to={isAuthenticated ? '/menu' : '/login'} />
               }
             />
           </Routes>
