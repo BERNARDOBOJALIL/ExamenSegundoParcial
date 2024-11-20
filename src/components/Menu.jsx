@@ -2,10 +2,31 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getMenu } from '../services/menuApi';
 import TableSelector from './TablesSelector';
+import { Skeleton } from './ui/skeleton';
+
+const SkeletonMenu = () => {
+  const skeletonsCount = Math.ceil(window.innerHeight / 100); 
+
+  return (
+    <div className="space-y-4">
+      {[...Array(skeletonsCount)].map((_, index) => (
+        <div
+          key={index}
+          className="rounded-lg p-4 shadow-md border border-green-300"
+          style={{ minHeight: '100px' }} 
+        >
+          <Skeleton className="h-6 w-2/3 mb-2" />
+          <Skeleton className="h-4 w-1/3 mb-2" />
+        </div>
+      ))}
+    </div>
+  );
+};
 
 const Menu = ({ addToOrder, order, setOrder, userName, selectedTable, setSelectedTable }) => {
   const [menuItems, setMenuItems] = useState([]);
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
   const [expandedCategory, setExpandedCategory] = useState(null);
   const [expandedItemId, setExpandedItemId] = useState(null);
   const navigate = useNavigate();
@@ -14,9 +35,11 @@ const Menu = ({ addToOrder, order, setOrder, userName, selectedTable, setSelecte
     getMenu()
       .then((data) => {
         setMenuItems(data);
+        setIsLoading(false);
       })
       .catch((error) => {
         setError(error.message);
+        setIsLoading(false);
       });
   }, []);
 
@@ -24,13 +47,11 @@ const Menu = ({ addToOrder, order, setOrder, userName, selectedTable, setSelecte
     const savedOrder = localStorage.getItem(`order_${userName}`);
     if (savedOrder) {
       setOrder(JSON.parse(savedOrder));
-      console.log("recupero", savedOrder);
     }
   }, [userName, setOrder]);
 
   useEffect(() => {
     localStorage.setItem(`order_${userName}`, JSON.stringify(order));
-    console.log("guarde", order);
   }, [order, userName]);
 
   useEffect(() => {
@@ -94,6 +115,8 @@ const Menu = ({ addToOrder, order, setOrder, userName, selectedTable, setSelecte
           <h2 className="text-2xl font-semibold mb-5 text-green-700">Nuestro Menú</h2>
           {error ? (
             <p className="text-red-600">{error}</p>
+          ) : isLoading ? (
+            <SkeletonMenu />
           ) : (
             <div className="max-h-[720px] overflow-y-auto space-y-4">
               {categories.map((category) => (
@@ -151,7 +174,6 @@ const Menu = ({ addToOrder, order, setOrder, userName, selectedTable, setSelecte
             </div>
           )}
 
-          {/* Botón para ir al carrito */}
           {order.length > 0 && (
             <button
               onClick={goToCart}

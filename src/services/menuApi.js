@@ -5,7 +5,7 @@ async function getMenu() {
     try {
         const productsRef = collection(db, "Products");
         const querySnapshot = await getDocs(productsRef);
-        const products = querySnapshot.docs.map((doc) => ({
+        const products = await querySnapshot.docs.map((doc) => ({
             id: doc.id,
             name: doc.data().Name,
             price: doc.data().Price, 
