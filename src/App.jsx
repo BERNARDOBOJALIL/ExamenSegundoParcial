@@ -6,11 +6,10 @@ import LoginForm from './components/LoginForm';
 import { loginUser, logoutUser, getUserData } from './services/auth';
 import SessionManager from './services/sessionManager';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import PrivateRoute from './components/PrivateRoute'; 
+import PrivateRoute from './components/PrivateRoute';
 import PublicRoute from './components/PublicRoute';
-import { resetTableState } from './services/tablesService'; 
-import History from './components/History'; 
-
+import { resetTableState } from './services/tablesService';
+import History from './components/History';
 
 const menuItems = [
   { id: 1, name: 'Tacos', price: 50 },
@@ -24,7 +23,22 @@ function App() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userName, setUserName] = useState('');
-  const [selectedTable, setSelectedTable] = useState(null);  
+  const [selectedTable, setSelectedTable] = useState(null);
+
+  // Recuperar la orden asociada al usuario y mesa al iniciar sesión o cambiar de usuario/mesa
+  useEffect(() => {
+    if (userName && selectedTable) {
+      const savedOrder = localStorage.getItem(`order_${userName}_${selectedTable}`);
+      setOrder(savedOrder ? JSON.parse(savedOrder) : []);
+    }
+  }, [userName, selectedTable]);
+
+  // Guardar la orden asociada al usuario y mesa en localStorage
+  useEffect(() => {
+    if (userName && selectedTable) {
+      localStorage.setItem(`order_${userName}_${selectedTable}`, JSON.stringify(order));
+    }
+  }, [order, userName, selectedTable]);
 
   useEffect(() => {
     const fetchUserRole = async () => {
@@ -46,27 +60,31 @@ function App() {
     if (!error) {
       if (selectedTable) {
         console.log('Restableciendo el estado de la mesa:', selectedTable);
-        await resetTableState(selectedTable);  
+        await resetTableState(selectedTable);
       } else {
         console.log('No hay mesa seleccionada para restablecer el estado.');
       }
-  
+
+      // Eliminar orden del usuario actual y mesa seleccionada
+      if (userName && selectedTable) {
+        localStorage.removeItem(`order_${userName}_${selectedTable}`);
+      }
+
       localStorage.removeItem('userData');
       localStorage.removeItem('selectedTable');
       setIsAuthenticated(false);
       setIsAdmin(false);
       setUserName('');
-      setSelectedTable(null); 
-      setOrder([])
+      setSelectedTable(null);
+      setOrder([]);
     } else {
       console.error('Error logging out:', error);
     }
   };
 
-  
   const handleTableSelect = (table) => {
-    setSelectedTable(table);  
-    localStorage.setItem('selectedTable', table);  
+    setSelectedTable(table);
+    localStorage.setItem('selectedTable', table);
   };
 
   const addToOrder = (item) => {
@@ -120,11 +138,11 @@ function App() {
 
   return (
     <Router>
-      <SessionManager 
-        onLogin={handleLogin} 
-        onLogout={handleLogout} 
-        onTableSelect={handleTableSelect} 
-        inactivityLimit={3600000} 
+      <SessionManager
+        onLogin={handleLogin}
+        onLogout={handleLogout}
+        onTableSelect={handleTableSelect}
+        inactivityLimit={3600000}
       />
       <div className="min-h-screen bg-yellow-100">
         <Header
@@ -147,8 +165,13 @@ function App() {
               path="/menu"
               element={
                 <PrivateRoute isAuthenticated={isAuthenticated}>
-                  <Menu addToOrder={addToOrder} order={order} setOrder={setOrder} selectedTable = {selectedTable}
-                    setSelectedTable = {setSelectedTable}/>
+                  <Menu
+                    addToOrder={addToOrder}
+                    order={order}
+                    setOrder={setOrder}
+                    selectedTable={selectedTable}
+                    setSelectedTable={setSelectedTable}
+                  />
                 </PrivateRoute>
               }
             />
@@ -156,20 +179,21 @@ function App() {
               path="/cart"
               element={
                 <PrivateRoute isAuthenticated={isAuthenticated}>
-                    <Order
-                      order={order}
-                      increaseQuantity={increaseQuantity}
-                      decreaseQuantity={decreaseQuantity}
-                      removeFromOrder={removeFromOrder}
-                      clearOrder={clearOrder}
-                      menuItems={menuItems}
-                      addToOrder={addToOrder}
-                      userName={userName}
-                      isAuthenticated={isAuthenticated}
-                      onLogout={handleLogout}
-                      selectedTable={selectedTable}  
-                      setSelectedTable={setSelectedTable}  
-                    />
+                  <Order
+                    order={order}
+                    increaseQuantity={increaseQuantity}
+                    decreaseQuantity={decreaseQuantity}
+                    removeFromOrder={removeFromOrder}
+                    clearOrder={clearOrder}
+                    menuItems={menuItems}
+                    addToOrder={addToOrder}
+                    userName={userName}
+                    isAuthenticated={isAuthenticated}
+                    onLogout={handleLogout}
+                    selectedTable={selectedTable}
+                    setSelectedTable={setSelectedTable}
+                    setOrder={setOrder}
+                  />
                 </PrivateRoute>
               }
             />
@@ -192,8 +216,8 @@ function App() {
                       isAuthenticated={isAuthenticated}
                       isAdmin={isAdmin}
                       onLogout={handleLogout}
-                      selectedTable={selectedTable}  
-                      setSelectedTable={setSelectedTable} 
+                      selectedTable={selectedTable}
+                      setSelectedTable={setSelectedTable}
                       setOrder={setOrder}
                     />
                   )}
@@ -208,3 +232,4 @@ function App() {
 }
 
 export default App;
+
