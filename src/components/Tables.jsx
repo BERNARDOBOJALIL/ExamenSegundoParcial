@@ -22,7 +22,6 @@ const Tables = () => {
   const [deleteTableId, setDeleteTableId] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Listener para cambios en la colección "Tables"
   useEffect(() => {
     const tablesCollection = collection(db, 'Tables');
     const tablesQuery = query(tablesCollection, orderBy('Table_number', 'asc'));

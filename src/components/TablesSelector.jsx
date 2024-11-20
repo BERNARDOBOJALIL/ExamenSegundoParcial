@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { getTables, updateTableState } from '../services/tablesService';
-import { FaChair } from 'react-icons/fa'; 
+import { db } from '../services/firebaseConfig';
+import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
+import { updateTableState } from '../services/tablesService';
+import { FaChair } from 'react-icons/fa';
 
 const TableSelector = ({ onTableSelect }) => {
   const [tables, setTables] = useState([]);
@@ -8,19 +10,28 @@ const TableSelector = ({ onTableSelect }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchTables = async () => {
-      try {
-        const fetchedTables = await getTables();
+    const tablesCollection = collection(db, 'Tables');
+    const tablesQuery = query(tablesCollection, orderBy('Table_number', 'asc'));
+
+    const unsubscribe = onSnapshot(
+      tablesQuery,
+      (snapshot) => {
+        const fetchedTables = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
         setTables(fetchedTables);
-      } catch (error) {
-        console.error('Error al obtener las mesas:', error);
-      } finally {
+        setLoading(false);
+      },
+      (error) => {
+        console.error('Error al escuchar cambios en Firestore:', error);
         setLoading(false);
       }
-    };
+    );
 
-    fetchTables();
+    return () => unsubscribe(); 
   }, []);
+
   const handleTableSelection = async (tableNumber) => {
     const selected = tables.find((table) => table.Table_number === tableNumber);
 
@@ -28,7 +39,11 @@ const TableSelector = ({ onTableSelect }) => {
       setSelectedTable(tableNumber);
       onTableSelect(tableNumber);
 
-      await updateTableState(selected.id);
+      try {
+        await updateTableState(selected.id);
+      } catch (error) {
+        console.error('Error al actualizar el estado de la mesa:', error);
+      }
     } else {
       alert('Esta mesa está ocupada. Selecciona otra mesa.');
     }
@@ -48,17 +63,16 @@ const TableSelector = ({ onTableSelect }) => {
           ) : (
             tables.map((table) => (
               <button
-                  key={table.id}
-                  onClick={() => handleTableSelection(table.Table_number)}
-                  className={`flex flex-col items-center justify-center gap-4 p-8 rounded-2xl shadow-2xl text-white text-3xl font-bold transition-transform transform hover:scale-110 ${
-                    table.State ? 'bg-red-500 cursor-not-allowed' : 'bg-green-500 hover:bg-green-600'
-                  }`}
-                  disabled={table.State}
-                >
-                  <FaChair className="text-6xl" />
-                  Mesa {table.Table_number}
-                </button>
-
+                key={table.id}
+                onClick={() => handleTableSelection(table.Table_number)}
+                className={`flex flex-col items-center justify-center gap-4 p-8 rounded-2xl shadow-2xl text-white text-3xl font-bold transition-transform transform hover:scale-110 ${
+                  table.State ? 'bg-red-500 cursor-not-allowed' : 'bg-green-500 hover:bg-green-600'
+                }`}
+                disabled={table.State}
+              >
+                <FaChair className="text-6xl" />
+                Mesa {table.Table_number}
+              </button>
             ))
           )}
         </div>
