@@ -1,15 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { addOrder } from '../services/orderService'; 
-import { Timestamp } from 'firebase/firestore'; 
+import React, { useState } from 'react';
+import { addOrder } from '../services/orderService';
+import { Timestamp } from 'firebase/firestore';
+import { useNavigate } from 'react-router-dom';
 
-const Payment = ({ order, clearOrder, clientName }) => {
+const Payment = ({ order, clearOrder, clientName, selectedTable }) => {
   const [discountCode, setDiscountCode] = useState('');
   const [discount, setDiscount] = useState(0);
   const [paymentMethod, setPaymentMethod] = useState('');
-  const [orderProcessed, setOrderProcessed] = useState(false);
+  const navigate = useNavigate();
 
   const validDiscountCodes = {
-    'EMMETT': 0.1,
+    EMMETT: 0.1,
   };
 
   const handleApplyDiscount = () => {
@@ -40,35 +41,22 @@ const Payment = ({ order, clearOrder, clientName }) => {
       payment: paymentMethod,
       timestamp: Timestamp.now(),
       total: totalWithDiscount,
-      client: clientName, 
+      client: clientName,
+      state: "En preparación",
+      table_number : selectedTable
     };
 
     try {
       await addOrder(orderData);
       alert('Orden guardada en la base de datos.');
-      setOrderProcessed(true);
+      clearOrder();
+      navigate('/');
     } catch (error) {
-      console.error("Error al guardar la orden:", error);
+      console.error('Error al guardar la orden:', error);
       alert('Hubo un problema al guardar la orden.');
-      return;
     }
-
-    clearOrder();
-    alert('Gracias por su compra!');
   };
 
-  useEffect(() => {
-    if (orderProcessed) {
-      setOrderProcessed(false);
-      setDiscountCode('');
-      setDiscount(0);
-      setPaymentMethod('');
-
-      window.location.reload();
-    }
-  }, [orderProcessed]);
-
-  
   return (
     <div className="mb-50 mt-10 p-6 bg-white shadow-lg rounded-lg border-2 border-green-500">
       <div className="mb-4">
@@ -86,9 +74,10 @@ const Payment = ({ order, clearOrder, clientName }) => {
           Aplicar
         </button>
       </div>
-      
       <div className="mb-4">
-        <label htmlFor="paymentMethod" className="block text-lg font-semibold mb-2">Método de Pago:</label>
+        <label htmlFor="paymentMethod" className="block text-lg font-semibold mb-2">
+          Método de Pago:
+        </label>
         <select
           id="paymentMethod"
           value={paymentMethod}
@@ -100,15 +89,15 @@ const Payment = ({ order, clearOrder, clientName }) => {
           <option value="card">Tarjeta</option>
         </select>
       </div>
-
       <div className="flex justify-between font-bold text-lg text-red-600">
         <span>Total con descuento:</span>
         <span>${totalWithDiscount.toFixed(2)}</span>
       </div>
-      
       <button
         onClick={handlePay}
-        className={`mt-5 w-full ${order.length === 0 ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'} text-white px-4 py-2 rounded-lg`}
+        className={`mt-5 w-full ${
+          order.length === 0 ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'
+        } text-white px-4 py-2 rounded-lg`}
         disabled={order.length === 0}
       >
         Pagar
@@ -118,3 +107,4 @@ const Payment = ({ order, clearOrder, clientName }) => {
 };
 
 export default Payment;
+

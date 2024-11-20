@@ -1,18 +1,15 @@
 import { useState, useEffect } from 'react';
 import Menu from './components/Menu';
 import Order from './components/Order';
-import Payment from './components/Payment';
-import History from './components/History';
 import Header from './components/Header';
 import LoginForm from './components/LoginForm';
 import { loginUser, logoutUser, getUserData } from './services/auth';
 import SessionManager from './services/sessionManager';
-import UserHistory from './components/UserHistory';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import PrivateRoute from './components/PrivateRoute'; 
+import PrivateRoute from './components/PrivateRoute';
 import PublicRoute from './components/PublicRoute';
-import { resetTableState } from './services/tablesService';  // Importa la función que actualiza el estado de la mesa
-
+import { resetTableState } from './services/tablesService';
+import History from './components/History';
 
 const menuItems = [
   { id: 1, name: 'Tacos', price: 50 },
@@ -26,7 +23,22 @@ function App() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userName, setUserName] = useState('');
-  const [selectedTable, setSelectedTable] = useState(null);  // Añadido para almacenar la mesa seleccionada
+  const [selectedTable, setSelectedTable] = useState(null);
+
+  // Recuperar la orden asociada al usuario y mesa al iniciar sesión o cambiar de usuario/mesa
+  useEffect(() => {
+    if (userName && selectedTable) {
+      const savedOrder = localStorage.getItem(`order_${userName}_${selectedTable}`);
+      setOrder(savedOrder ? JSON.parse(savedOrder) : []);
+    }
+  }, [userName, selectedTable]);
+
+  // Guardar la orden asociada al usuario y mesa en localStorage
+  useEffect(() => {
+    if (userName && selectedTable) {
+      localStorage.setItem(`order_${userName}_${selectedTable}`, JSON.stringify(order));
+    }
+  }, [order, userName, selectedTable]);
 
   useEffect(() => {
     const fetchUserRole = async () => {
@@ -43,33 +55,36 @@ function App() {
     }
   }, [isAuthenticated]);
 
-  // Función de cierre de sesión
   const handleLogout = async () => {
     const { error } = await logoutUser();
     if (!error) {
-      // Agregar validación para verificar si 'selectedTable' tiene un valor válido
       if (selectedTable) {
         console.log('Restableciendo el estado de la mesa:', selectedTable);
-        await resetTableState(selectedTable);  // Cambia el estado de la mesa a desocupada
+        await resetTableState(selectedTable);
       } else {
         console.log('No hay mesa seleccionada para restablecer el estado.');
       }
-  
+
+      // Eliminar orden del usuario actual y mesa seleccionada
+      if (userName && selectedTable) {
+        localStorage.removeItem(`order_${userName}_${selectedTable}`);
+      }
+
       localStorage.removeItem('userData');
       localStorage.removeItem('selectedTable');
       setIsAuthenticated(false);
       setIsAdmin(false);
       setUserName('');
-      setSelectedTable(null);  // Limpiar la mesa seleccionada
+      setSelectedTable(null);
+      setOrder([]);
     } else {
       console.error('Error logging out:', error);
     }
   };
 
-  // Función que maneja la selección de mesa
   const handleTableSelect = (table) => {
-    setSelectedTable(table);  // Guardar la mesa seleccionada en el estado
-    localStorage.setItem('selectedTable', table);  // Guardar en el localStorage
+    setSelectedTable(table);
+    localStorage.setItem('selectedTable', table);
   };
 
   const addToOrder = (item) => {
@@ -123,11 +138,11 @@ function App() {
 
   return (
     <Router>
-      <SessionManager 
-        onLogin={handleLogin} 
-        onLogout={handleLogout} 
-        onTableSelect={handleTableSelect} 
-        inactivityLimit={60000} 
+      <SessionManager
+        onLogin={handleLogin}
+        onLogout={handleLogout}
+        onTableSelect={handleTableSelect}
+        inactivityLimit={3600000}
       />
       <div className="min-h-screen bg-yellow-100">
         <Header
@@ -147,36 +162,38 @@ function App() {
               }
             />
             <Route
-              path="/history"
+              path="/menu"
               element={
                 <PrivateRoute isAuthenticated={isAuthenticated}>
-                  {isAdmin ? <History /> : <Navigate to="/" />}
+                  <Menu
+                    addToOrder={addToOrder}
+                    order={order}
+                    setOrder={setOrder}
+                    selectedTable={selectedTable}
+                    setSelectedTable={setSelectedTable}
+                  />
                 </PrivateRoute>
               }
             />
             <Route
-              path="/order"
+              path="/cart"
               element={
                 <PrivateRoute isAuthenticated={isAuthenticated}>
-                  {isAdmin ? (
-                    <Navigate to="/history" />
-                  ) : (
-                    <Order
-                      order={order}
-                      increaseQuantity={increaseQuantity}
-                      decreaseQuantity={decreaseQuantity}
-                      removeFromOrder={removeFromOrder}
-                      clearOrder={clearOrder}
-                      menuItems={menuItems}
-                      addToOrder={addToOrder}
-                      userName={userName}
-                      isAuthenticated={isAuthenticated}
-                      isAdmin={isAdmin}
-                      onLogout={handleLogout}
-                      selectedTable={selectedTable}  // Pasamos la mesa seleccionada
-                      setSelectedTable={setSelectedTable}  // Pasamos el setter de la mesa seleccionada
-                    />
-                  )}
+                  <Order
+                    order={order}
+                    increaseQuantity={increaseQuantity}
+                    decreaseQuantity={decreaseQuantity}
+                    removeFromOrder={removeFromOrder}
+                    clearOrder={clearOrder}
+                    menuItems={menuItems}
+                    addToOrder={addToOrder}
+                    userName={userName}
+                    isAuthenticated={isAuthenticated}
+                    onLogout={handleLogout}
+                    selectedTable={selectedTable}
+                    setSelectedTable={setSelectedTable}
+                    setOrder={setOrder}
+                  />
                 </PrivateRoute>
               }
             />
@@ -187,7 +204,7 @@ function App() {
                   {isAdmin ? (
                     <History />
                   ) : (
-                    <Order
+                    <Menu
                       order={order}
                       increaseQuantity={increaseQuantity}
                       decreaseQuantity={decreaseQuantity}
@@ -199,8 +216,9 @@ function App() {
                       isAuthenticated={isAuthenticated}
                       isAdmin={isAdmin}
                       onLogout={handleLogout}
-                      selectedTable={selectedTable}  // Pasamos la mesa seleccionada
-                      setSelectedTable={setSelectedTable}  // Pasamos el setter de la mesa seleccionada
+                      selectedTable={selectedTable}
+                      setSelectedTable={setSelectedTable}
+                      setOrder={setOrder}
                     />
                   )}
                 </PrivateRoute>
@@ -214,3 +232,4 @@ function App() {
 }
 
 export default App;
+

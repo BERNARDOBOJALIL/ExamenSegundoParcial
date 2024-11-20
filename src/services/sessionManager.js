@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { getUserData, logoutUser } from '../services/auth';
 
-const SessionManager = ({ onLogin, onLogout, onTableSelect, inactivityLimit = 60000 }) => {
+const SessionManager = ({ onLogin, onLogout, onTableSelect, inactivityLimit = 3600000 }) => {
   const timeoutIdRef = useRef(null); 
 
   useEffect(() => {
