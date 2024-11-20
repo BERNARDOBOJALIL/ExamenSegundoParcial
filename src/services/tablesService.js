@@ -1,4 +1,4 @@
-import { collection, getDocs, query, where, doc, updateDoc, addDoc, deleteDoc, orderBy } from "firebase/firestore"; 
+import { collection, getDocs, query, where, doc, updateDoc, addDoc, deleteDoc, orderBy, getDoc } from "firebase/firestore"; 
 import { db } from "./firebaseConfig";
 
 // Función para obtener las mesas
@@ -34,16 +34,30 @@ const getTables = async () => {
 const updateTableState = async (tableId) => {
   try {
     console.log('Attempting to update table state...');
-    const tableRef = doc(db, 'Tables', tableId); 
-    await updateDoc(tableRef, {
-      State: true,  
-    });
+    const tableRef = doc(db, 'Tables', tableId);
 
-    console.log('Table state updated to occupied');
+    // Obtén el estado actual de la mesa
+    const tableDoc = await getDoc(tableRef);
+    if (tableDoc.exists()) {
+      const currentState = tableDoc.data().State;
+
+      // Alterna el estado
+      const newState = !currentState;
+
+      // Actualiza el estado en la base de datos
+      await updateDoc(tableRef, {
+        State: newState,
+      });
+
+      console.log(`Table state updated to ${newState ? 'occupied' : 'available'}`);
+    } else {
+      console.error('Table document does not exist.');
+    }
   } catch (error) {
     console.error('Error updating table state:', error);
   }
 };
+
 
 // Función para restablecer el estado de la mesa (marcarla como desocupada)
 const resetTableState = async (tableNumber) => {

@@ -43,7 +43,6 @@ function History({ isAuthenticated, onLogout, userName }) {
     <div>
       
       <div className="mt-10">
-        <h2 className="text-2xl font-semibold text-center text-green-700 mb-4">Mesas</h2>
         <Tables />
       </div>
       <div className="p-6 bg-amber-50 rounded-lg mt-6 shadow-md border-2 border-orange-400">

@@ -19,7 +19,8 @@ const Order = ({
 
 
   const totalAmount = order.reduce((total, item) => total + item.price * item.quantity, 0);
-  navigate = useNavigate()
+  const navigate = useNavigate();
+  
   const goToMenu = () => {
     navigate('/menu');
   };
