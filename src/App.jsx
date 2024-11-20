@@ -25,7 +25,6 @@ function App() {
   const [userName, setUserName] = useState('');
   const [selectedTable, setSelectedTable] = useState(null);
 
-  // Recuperar la orden asociada al usuario y mesa al iniciar sesión o cambiar de usuario/mesa
   useEffect(() => {
     if (userName && selectedTable) {
       const savedOrder = localStorage.getItem(`order_${userName}_${selectedTable}`);
@@ -33,7 +32,6 @@ function App() {
     }
   }, [userName, selectedTable]);
 
-  // Guardar la orden asociada al usuario y mesa en localStorage
   useEffect(() => {
     if (userName && selectedTable) {
       localStorage.setItem(`order_${userName}_${selectedTable}`, JSON.stringify(order));
@@ -65,7 +63,6 @@ function App() {
         console.log('No hay mesa seleccionada para restablecer el estado.');
       }
 
-      // Eliminar orden del usuario actual y mesa seleccionada
       if (userName && selectedTable) {
         localStorage.removeItem(`order_${userName}_${selectedTable}`);
       }
