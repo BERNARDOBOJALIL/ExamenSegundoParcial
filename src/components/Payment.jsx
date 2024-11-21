@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { addOrder } from '../services/orderService';
 import { Timestamp } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
-import Modal from 'react-modal';
 import {generateEmailMessage} from '../services/emailService'
+import { createCard, getCard, getUID } from '@/services/paymentsService';
+import Modal from 'react-modal';
 
 const Payment = ({ order, clearOrder, clientName, selectedTable }) => {
   const [discountCode, setDiscountCode] = useState('');
@@ -16,13 +17,39 @@ const Payment = ({ order, clearOrder, clientName, selectedTable }) => {
     cardNumber: '',
     expiryDate: '',
     cvv: '',
+    name: '',
   });
+  const [hasCard, setHasCard] = useState(false);
   const [paymentStatus, setPaymentStatus] = useState(null); // null, 'success', 'error'
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchInfo = async() =>{
+      const uid = await userUID();
+      const data = await getCard(uid);
+      if (data !== null){
+        setCardDetails({
+          cardNumber: data.card,
+          expiryDate: '',
+          cvv: '',
+          name: '',
+        })
+        setHasCard(true)
+      }
+    }
+    fetchInfo();
+  }, []);
 
   const validDiscountCodes = {
     EMMETT: 0.1,
   };
+  
+  const userUID = async() =>{
+    const userData = JSON.parse(localStorage.getItem("userData"))
+    const email = userData.email;
+    const uid = await getUID(email);
+    return uid;
+  }
 
   const handleApplyDiscount = () => {
     if (validDiscountCodes[discountCode]) {
@@ -83,8 +110,8 @@ const Payment = ({ order, clearOrder, clientName, selectedTable }) => {
     }
   }
 
-  const handleCardSubmit = () => {
-    if (!cardDetails.cardNumber || !cardDetails.expiryDate || !cardDetails.cvv) {
+  const handleCardSubmit = async() => {
+    if (!cardDetails.cardNumber || !cardDetails.expiryDate || !cardDetails.cvv || !cardDetails.name) {
       alert('Por favor, complete todos los campos del formulario de tarjeta.');
       return;
     }
@@ -93,7 +120,16 @@ const Payment = ({ order, clearOrder, clientName, selectedTable }) => {
       setPaymentStatus('error');
     } else {
       setPaymentStatus('success');
-      upload_payment_database();
+      try{
+        if (!hasCard){
+          const uid = await userUID(); 
+          await createCard(cardDetails.cardNumber, uid);
+        }
+        upload_payment_database();
+      }
+      catch(e){
+        console.error("Error: ", e);
+      }
     }
   };
 
@@ -181,6 +217,7 @@ const Payment = ({ order, clearOrder, clientName, selectedTable }) => {
           setIsCardModalOpen(false);
           setPaymentStatus(null);
         }}
+        ariaHideApp={false}
         className="fixed inset-0 flex items-center justify-center z-50"
         overlayClassName="fixed inset-0 bg-black bg-opacity-50"
       >
@@ -224,6 +261,11 @@ const Payment = ({ order, clearOrder, clientName, selectedTable }) => {
                 <label className="block text-gray-700">Nombre en la tarjeta:</label>
                 <input
                   type="text"
+                  value={cardDetails.name}
+                  onChange={(e) => {
+                    const value = e.target.value
+                    setCardDetails((prev) => ({ ...prev, name: value }));
+                  }}
                   placeholder="Ex. Paco Perez"
                   className="border rounded-lg p-2 w-full focus:outline-none focus:ring focus:ring-blue-400"
                 />
@@ -238,7 +280,9 @@ const Payment = ({ order, clearOrder, clientName, selectedTable }) => {
                     onChange={(e) => {
                       let value = e.target.value.replace(/\D/g, '');
                       if (value.length > 2) {
-                        value = value.slice(0, 2) + '/' + value.slice(2);
+                        const month = Math.min(12, Math.max(0, parseInt(value.slice(0, 2)))); // Asegurarse de que el mes esté entre 00 y 12
+                        const year = value.slice(2, 4); // Tomar los dos últimos caracteres como año
+                        value = month.toString().padStart(2, '0') + '/' + year;
                       }
                       setCardDetails((prev) => ({ ...prev, expiryDate: value }));
                     }}
