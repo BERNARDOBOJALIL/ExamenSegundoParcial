@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { addOrder } from '../services/orderService';
 import { Timestamp } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
+import {generateEmailMessage} from '../services/emailService'
 
 const Payment = ({ order, clearOrder, clientName, selectedTable }) => {
   const [discountCode, setDiscountCode] = useState('');
@@ -47,8 +48,10 @@ const Payment = ({ order, clearOrder, clientName, selectedTable }) => {
     };
 
     try {
-      await addOrder(orderData);
+      const uid_order = await addOrder(orderData);
       alert('Orden guardada en la base de datos.');
+      //TODO Quitar comentarios de los mails
+      //await generateEmailMessage(orderData, uid_order);
       clearOrder();
       navigate('/');
     } catch (error) {
