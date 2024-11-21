@@ -2,12 +2,22 @@ import React, { useState } from 'react';
 import { addOrder } from '../services/orderService';
 import { Timestamp } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
+import Modal from 'react-modal';
 import {generateEmailMessage} from '../services/emailService'
 
 const Payment = ({ order, clearOrder, clientName, selectedTable }) => {
   const [discountCode, setDiscountCode] = useState('');
   const [discount, setDiscount] = useState(0);
   const [paymentMethod, setPaymentMethod] = useState('');
+  const [splitBill, setSplitBill] = useState(false);
+  const [splitValue, setSplitValue] = useState(2);
+  const [isCardModalOpen, setIsCardModalOpen] = useState(false);
+  const [cardDetails, setCardDetails] = useState({
+    cardNumber: '',
+    expiryDate: '',
+    cvv: '',
+  });
+  const [paymentStatus, setPaymentStatus] = useState(null); // null, 'success', 'error'
   const navigate = useNavigate();
 
   const validDiscountCodes = {
@@ -26,13 +36,26 @@ const Payment = ({ order, clearOrder, clientName, selectedTable }) => {
 
   const totalAmount = order.reduce((total, item) => total + item.price * item.quantity, 0);
   const totalWithDiscount = totalAmount - totalAmount * discount;
+  const finalTotal = splitBill ? (totalWithDiscount / splitValue).toFixed(2) : totalWithDiscount.toFixed(2);
 
   const handlePay = async () => {
-    if (order.length === 0 || paymentMethod === '') {
+    if (paymentMethod === '') {
       alert('Seleccione un método de pago.');
       return;
     }
 
+    else if (paymentMethod === 'card' && isCardModalOpen === false) {
+      setPaymentStatus(null)
+      setIsCardModalOpen(true);
+      return;
+    }
+    else{
+      await upload_payment_database();
+    }
+    
+  };
+
+  const upload_payment_database = async() => {
     const orderData = {
       items: order.map((item) => ({
         name: item.name,
@@ -41,10 +64,10 @@ const Payment = ({ order, clearOrder, clientName, selectedTable }) => {
       })),
       payment: paymentMethod,
       timestamp: Timestamp.now(),
-      total: totalWithDiscount,
+      total: finalTotal,
       client: clientName,
-      state: "En preparación",
-      table_number : selectedTable
+      state: 'En preparación',
+      table_number: selectedTable,
     };
 
     try {
@@ -57,6 +80,20 @@ const Payment = ({ order, clearOrder, clientName, selectedTable }) => {
     } catch (error) {
       console.error('Error al guardar la orden:', error);
       alert('Hubo un problema al guardar la orden.');
+    }
+  }
+
+  const handleCardSubmit = () => {
+    if (!cardDetails.cardNumber || !cardDetails.expiryDate || !cardDetails.cvv) {
+      alert('Por favor, complete todos los campos del formulario de tarjeta.');
+      return;
+    }
+
+    if (cardDetails.cardNumber === '1111111111111111') {
+      setPaymentStatus('error');
+    } else {
+      setPaymentStatus('success');
+      upload_payment_database();
     }
   };
 
@@ -92,9 +129,41 @@ const Payment = ({ order, clearOrder, clientName, selectedTable }) => {
           <option value="card">Tarjeta</option>
         </select>
       </div>
+      {paymentMethod === 'card' && (
+        <>
+          <div className="mb-4">
+            <input
+              type="checkbox"
+              checked={splitBill}
+              onChange={(e) => setSplitBill(e.target.checked)}
+              className="mr-2"
+            />
+            <label>¿Dividir la cuenta?</label>
+          </div>
+          {splitBill && (
+            <div className="mb-4">
+              <label htmlFor="splitValue" className="block text-lg font-semibold mb-2">
+                Dividir entre:
+              </label>
+              <select
+                id="splitValue"
+                value={splitValue}
+                onChange={(e) => setSplitValue(Number(e.target.value))}
+                className="border-2 border-yellow-600 rounded-lg p-2 w-full"
+              >
+                {[...Array(7)].map((_, i) => (
+                  <option key={i + 2} value={i + 2}>
+                    {i + 2}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+        </>
+      )}
       <div className="flex justify-between font-bold text-lg text-red-600">
         <span>Total con descuento:</span>
-        <span>${totalWithDiscount.toFixed(2)}</span>
+        <span>${finalTotal}</span>
       </div>
       <button
         onClick={handlePay}
@@ -105,9 +174,148 @@ const Payment = ({ order, clearOrder, clientName, selectedTable }) => {
       >
         Pagar
       </button>
+
+      <Modal
+        isOpen={isCardModalOpen || paymentStatus !== null}
+        onRequestClose={() => {
+          setIsCardModalOpen(false);
+          setPaymentStatus(null);
+        }}
+        className="fixed inset-0 flex items-center justify-center z-50"
+        overlayClassName="fixed inset-0 bg-black bg-opacity-50"
+      >
+        {paymentStatus === null ? (
+          <div className="bg-white rounded-lg p-6 shadow-lg w-96 relative">
+            <button
+              onClick={() => setIsCardModalOpen(false)}
+              className="absolute top-3 right-3 text-gray-600 hover:text-gray-900"
+            >
+              ✕
+            </button>
+            <h2 className="text-xl font-bold text-center mb-6">Pago con tarjeta</h2>
+            <div className="flex justify-center mb-4">
+              <img
+                src="https://upload.wikimedia.org/wikipedia/commons/4/41/Visa_Logo.png"
+                alt="Visa"
+                className="h-6 mx-2"
+              />
+              <img
+                src="https://upload.wikimedia.org/wikipedia/commons/b/b7/MasterCard_Logo.svg"
+                alt="MasterCard"
+                className="h-6 mx-2"
+              />
+            </div>
+            <form>
+              <div className="mb-4">
+                <label className="block text-gray-700">Número de tarjeta:</label>
+                <input
+                  type="text"
+                  value={cardDetails.cardNumber}
+                  maxLength={16}
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/\D/g, '');
+                    setCardDetails((prev) => ({ ...prev, cardNumber: value }));
+                  }}
+                  placeholder="1234 5678 9012 3456"
+                  className="border rounded-lg p-2 w-full focus:outline-none focus:ring focus:ring-blue-400"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-gray-700">Nombre en la tarjeta:</label>
+                <input
+                  type="text"
+                  placeholder="Ex. Paco Perez"
+                  className="border rounded-lg p-2 w-full focus:outline-none focus:ring focus:ring-blue-400"
+                />
+              </div>
+              <div className="flex gap-4 mb-4">
+                <div className="w-1/2">
+                  <label className="block text-gray-700">Fecha de expiración:</label>
+                  <input
+                    type="text"
+                    value={cardDetails.expiryDate}
+                    maxLength={5}
+                    onChange={(e) => {
+                      let value = e.target.value.replace(/\D/g, '');
+                      if (value.length > 2) {
+                        value = value.slice(0, 2) + '/' + value.slice(2);
+                      }
+                      setCardDetails((prev) => ({ ...prev, expiryDate: value }));
+                    }}
+                    placeholder="MM/AA"
+                    className="border rounded-lg p-2 w-full focus:outline-none focus:ring focus:ring-blue-400"
+                  />
+                </div>
+                <div className="w-1/2">
+                  <label className="block text-gray-700">CVV:</label>
+                  <input
+                    type="text"
+                    value={cardDetails.cvv}
+                    maxLength={3}
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/\D/g, '');
+                      setCardDetails((prev) => ({ ...prev, cvv: value }));
+                    }}
+                    placeholder="•••"
+                    className="border rounded-lg p-2 w-full focus:outline-none focus:ring focus:ring-blue-400"
+                  />
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={handleCardSubmit}
+                className="w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg"
+              >
+                Pagar
+              </button>
+            </form>
+          </div>
+        ) : (
+          <div
+            className={`bg-white rounded-lg p-6 shadow-lg w-96 relative ${
+              paymentStatus === 'success' ? 'border-green-500' : 'border-red-500'
+            }`}
+          >
+            <button
+              onClick={() => {
+                setPaymentStatus(null);
+                setIsCardModalOpen(false);
+              }}
+              className="absolute top-3 right-3 text-gray-600 hover:text-gray-900"
+            >
+              ✕
+            </button>
+            <div className="text-center">
+              {paymentStatus === 'success' ? (
+                <>
+                  <div className="text-green-500 text-4xl mb-4">✔</div>
+                  <h2 className="text-xl font-bold text-green-500">SUCCESS</h2>
+                  <p>Pago procesado con exito.</p>
+                </>
+              ) : (
+                <>
+                  <div className="text-red-500 text-4xl mb-4">✖</div>
+                  <h2 className="text-xl font-bold text-red-500">ERROR</h2>
+                  <p>Hubo un error procesando el pago. Intente después.</p>
+                </>
+              )}
+            </div>
+            <button
+              onClick={() => {
+                setPaymentStatus(null);
+                setIsCardModalOpen(false);
+              }}
+              className={`mt-4 w-full ${
+                paymentStatus === 'success' ? 'bg-green-500' : 'bg-red-500'
+              } hover:opacity-90 text-white px-4 py-2 rounded-lg`}
+            >
+              Continuar
+            </button>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 };
 
 export default Payment;
-
