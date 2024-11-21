@@ -9,7 +9,8 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import PrivateRoute from './components/PrivateRoute';
 import PublicRoute from './components/PublicRoute';
 import { resetTableState } from './services/tablesService';
-import History from './components/History';
+import AdminDashboard from './components/AdminDashboard';
+
 
 const menuItems = [
   { id: 1, name: 'Tacos', price: 50 },
@@ -199,7 +200,11 @@ function App() {
               element={
                 <PrivateRoute isAuthenticated={isAuthenticated}>
                   {isAdmin ? (
-                    <History />
+                    <AdminDashboard 
+                      isAuthenticated={isAuthenticated} 
+                      onLogout={handleLogout} 
+                      userName={userName} 
+                    />
                   ) : (
                     <Menu
                       order={order}
@@ -221,6 +226,7 @@ function App() {
                 </PrivateRoute>
               }
             />
+
           </Routes>
         </div>
       </div>

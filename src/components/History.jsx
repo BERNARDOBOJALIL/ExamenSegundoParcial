@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getOrders } from '../services/orderService';
-import Tables from './Tables'; 
+
 
 function History({ isAuthenticated, onLogout, userName }) {
   const [ordersFromDB, setOrdersFromDB] = useState([]);
@@ -41,10 +41,6 @@ function History({ isAuthenticated, onLogout, userName }) {
 
   return (
     <div>
-      
-      <div className="mt-10">
-        <Tables />
-      </div>
       <div className="p-6 bg-amber-50 rounded-lg mt-6 shadow-md border-2 border-orange-400">
         <div
           className="h-4 w-full bg-repeat-x mb-4"
