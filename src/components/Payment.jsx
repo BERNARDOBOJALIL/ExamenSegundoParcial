@@ -3,7 +3,7 @@ import { addOrder } from '../services/orderService';
 import { Timestamp } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 
-const Payment = ({ order, clearOrder, clientName }) => {
+const Payment = ({ order, clearOrder, clientName, selectedTable }) => {
   const [discountCode, setDiscountCode] = useState('');
   const [discount, setDiscount] = useState(0);
   const [paymentMethod, setPaymentMethod] = useState('');
@@ -42,6 +42,8 @@ const Payment = ({ order, clearOrder, clientName }) => {
       timestamp: Timestamp.now(),
       total: totalWithDiscount,
       client: clientName,
+      state: "En preparación",
+      table_number : selectedTable
     };
 
     try {

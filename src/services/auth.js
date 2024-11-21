@@ -40,6 +40,7 @@ const registerUser = async (email, password, name) => {
       role: 'client', 
       email: email,
       createdAt: serverTimestamp(),
+      card : null
     });
 
     console.log('User registered:', userId);
@@ -86,6 +87,7 @@ const loginWithGoogle = async () => {
         email: user.email,
         role: 'user',
         createdAt: serverTimestamp(),
+        card: null 
       });
     }
 
