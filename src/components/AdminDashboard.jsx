@@ -1,6 +1,7 @@
 import React from 'react';
 import History from './History';
 import Tables from './Tables';
+import AddProductForm from './AddProductForm';
 
 function AdminDashboard({ isAuthenticated, onLogout, userName }) {
   return (
@@ -11,6 +12,9 @@ function AdminDashboard({ isAuthenticated, onLogout, userName }) {
       </div>
       <div className="mt-10">
         <History isAuthenticated={isAuthenticated} onLogout={onLogout} userName={userName} />
+      </div>
+      <div className="mt-10">
+        <AddProductForm />
       </div>
     </div>
   );

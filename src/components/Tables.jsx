@@ -156,7 +156,7 @@ const Tables = () => {
                   }`}
                 >
                   {table.State ? <FaCheckCircle /> : <FaTimesCircle />}{' '}
-                  {table.State ? 'Habilitar' : 'Deshabilitar'}
+                  {table.State ? 'Habilitar' : 'Inhabilitar'}
                 </button>
                 <button
                   onClick={() => openDeleteModal(table.id)}
