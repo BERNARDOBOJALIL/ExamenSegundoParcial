@@ -75,7 +75,7 @@ const Order = ({
             </div>
           </div>
           <div>
-            <Payment order={order} clearOrder={clearOrder} clientName={userName} selectedTable = {selectedTable} />
+            <Payment order={order} clearOrder={clearOrder} clientName={userName} selectedTable = {selectedTable}/>
           </div>
           <div>
             <button
