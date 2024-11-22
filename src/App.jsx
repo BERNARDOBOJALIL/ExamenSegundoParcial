@@ -205,7 +205,7 @@ function App() {
                     <AdminDashboard 
                       isAuthenticated={isAuthenticated} 
                       onLogout={handleLogout} 
-                      userName={userName} 
+                      userName={userName}
                     />
                   ) : (
                     <Menu
