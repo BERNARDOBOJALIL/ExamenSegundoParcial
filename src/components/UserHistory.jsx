@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { getOrders, setOrderToReceived } from '../services/orderService';
 
 const UserHistory = ({ clientName }) => {
   const [ordersFromDB, setOrdersFromDB] = useState([]);
   const [storedClientName, setStoredClientName] = useState(localStorage.getItem('clientName') || clientName);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (clientName) {
@@ -20,7 +22,7 @@ const UserHistory = ({ clientName }) => {
         unsubscribe = getOrders(
           { clientName: storedClientName, sortBy: 'timestamp', sortOrder: 'desc' },
           (orders) => {
-            setOrdersFromDB(orders); 
+            setOrdersFromDB(orders);
           }
         );
       } catch (error) {
@@ -57,9 +59,19 @@ const UserHistory = ({ clientName }) => {
     }
   };
 
+  const goBackToMenu = () => {
+    navigate('/menu'); 
+  };
+
   return (
-    <div className="mt-10 mb-10 px-4">
+    <div className="mt-20 mb-10 px-4">
       <h2 className="text-2xl font-semibold text-center text-green-700 mb-6">Historial</h2>
+      <button
+        onClick={goBackToMenu}
+        className="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-lg mr-4 mb-4"
+      >
+        Regresar al Menú
+      </button>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {ordersFromDB.map((dbOrder) => (
           <div

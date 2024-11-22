@@ -10,7 +10,8 @@ import PrivateRoute from './components/PrivateRoute';
 import PublicRoute from './components/PublicRoute';
 import { resetTableState } from './services/tablesService';
 import AdminDashboard from './components/AdminDashboard';
-
+import UserHistory from './components/UserHistory';
+import OrderStatusAdmin from './components/OrderStatusAdmin'; 
 
 const menuItems = [
   { id: 1, name: 'Tacos', price: 50 },
@@ -22,11 +23,10 @@ const menuItems = [
 function App() {
   const [order, setOrder] = useState([]);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isEmployee, setIsEmployee] = useState(false); 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userName, setUserName] = useState('');
   const [selectedTable, setSelectedTable] = useState(null);
-
-
 
   useEffect(() => {
     if (userName && selectedTable) {
@@ -46,6 +46,7 @@ function App() {
       const userData = await getUserData();
       if (userData && userData.role) {
         setIsAdmin(userData.role === 'admin');
+        setIsEmployee(userData.role === 'employee'); 
         setIsAuthenticated(true);
         setUserName(userData.name);
       }
@@ -74,6 +75,7 @@ function App() {
       localStorage.removeItem('selectedTable');
       setIsAuthenticated(false);
       setIsAdmin(false);
+      setIsEmployee(false); 
       setUserName('');
       setSelectedTable(null);
       setOrder([]);
@@ -133,6 +135,7 @@ function App() {
   const handleLogin = (userData) => {
     setIsAuthenticated(true);
     setIsAdmin(userData.role === 'admin');
+    setIsEmployee(userData.role === 'employee'); 
     setUserName(userData.name);
   };
 
@@ -147,6 +150,7 @@ function App() {
       <div className="min-h-screen bg-yellow-100">
         <Header
           isAdmin={isAdmin}
+          isEmployee={isEmployee}
           isAuthenticated={isAuthenticated}
           onLogout={handleLogout}
           userName={userName}
@@ -207,6 +211,8 @@ function App() {
                       onLogout={handleLogout} 
                       userName={userName}
                     />
+                  ) : isEmployee ? (
+                    <OrderStatusAdmin /> 
                   ) : (
                     <Menu
                       order={order}
@@ -228,7 +234,14 @@ function App() {
                 </PrivateRoute>
               }
             />
-
+            <Route
+              path="/history"
+              element={
+                <PrivateRoute isAuthenticated={isAuthenticated}>
+                  <UserHistory clientName={userName} />
+                </PrivateRoute>
+              }
+            />
           </Routes>
         </div>
       </div>
@@ -237,4 +250,3 @@ function App() {
 }
 
 export default App;
-

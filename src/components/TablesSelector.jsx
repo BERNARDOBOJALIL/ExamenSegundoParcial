@@ -50,8 +50,8 @@ const TableSelector = ({ onTableSelect }) => {
   };
 
   return (
-    <div className="min-h-screen bg-yellow-100 flex flex-col items-center p-6">
-      <h2 className="text-3xl font-bold text-green-700 mb-6">
+    <div className="mt-20 min-h-screen bg-yellow-100 flex flex-col items-center p-6">
+      <h2 className="text-2xl font-bold text-green-700 mb-8">
         🌮 Bienvenido, selecciona tu mesa
       </h2>
       {loading ? (

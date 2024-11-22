@@ -30,7 +30,7 @@ const Order = ({
   return (
     <div className="min-h-screen bg-yellow-100">
       <div className="container mx-auto p-5 grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="col-span-1 space-y-4">
+        <div className="mt-10 col-span-1 space-y-4">
           <h2 className="text-2xl font-semibold text-green-700">Mesa: {selectedTable}</h2>
           <h2 className="text-2xl font-semibold text-green-700">Tu Orden</h2>
           <div className="bg-white p-4 shadow-lg rounded-lg border-2 border-red-500">
