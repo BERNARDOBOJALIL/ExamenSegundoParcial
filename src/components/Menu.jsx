@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { getMenu } from '../services/menuApi';
 import TableSelector from './TablesSelector';
 import { Skeleton } from './ui/skeleton';
+import UserHistory from './UserHistory';
 
 const SkeletonMenu = () => {
   const skeletonsCount = Math.ceil(window.innerHeight / 100); 
@@ -177,6 +178,8 @@ const Menu = ({ addToOrder, order, setOrder, userName, selectedTable, setSelecte
               ))}
             </div>
           )}
+
+          <UserHistory clientName={userName} /> 
 
           {order.length > 0 && (
             <button

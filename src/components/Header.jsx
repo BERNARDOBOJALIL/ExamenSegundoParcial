@@ -16,7 +16,7 @@ const Header = ({ isAuthenticated, onLogout, userName }) => {
           <Button 
             variant="outline" 
             onClick={onLogout}
-            className="border-white text-white hover:bg-white hover:text-red-600 transition duration-200"
+            className="border-white text-red-600 hover:bg-white hover:text-red-600 transition duration-200"
           >
             Cerrar Sesión
           </Button>

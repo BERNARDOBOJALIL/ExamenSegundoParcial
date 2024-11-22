@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getOrders } from '../services/orderService';
+import { AllOrders } from '../services/orderService';
 
 function History({ isAuthenticated, onLogout, userName }) {
   const [ordersFromDB, setOrdersFromDB] = useState([]);
@@ -9,26 +9,29 @@ function History({ isAuthenticated, onLogout, userName }) {
   const [endTime, setEndTime] = useState('');
   const [sortBy, setSortBy] = useState('date');
   const [sortOrder, setSortOrder] = useState('desc');
-  const [showHistory, setShowHistory] = useState(false); // Estado para controlar la visibilidad del historial
+  const [showHistory, setShowHistory] = useState(false); 
 
   useEffect(() => {
-    const fetchOrders = async () => {
-      try {
-        const data = await getOrders({
-          startDate,
-          endDate,
-          startTime,
-          endTime,
-          sortBy,
-          sortOrder,
-        });
-        setOrdersFromDB(data);
-      } catch (error) {
-        console.error('Error fetching orders:', error);
+   
+    const unsubscribe = AllOrders(
+      {
+        startDate,
+        endDate,
+        startTime,
+        endTime,
+        sortBy,
+        sortOrder,
+      },
+      (data) => {
+        setOrdersFromDB(data); 
       }
+    );
+
+    
+    return () => {
+      unsubscribe();
     };
-    fetchOrders();
-  }, [startDate, endDate, startTime, endTime, sortBy, sortOrder]);
+  }, [startDate, endDate, startTime, endTime, sortBy, sortOrder]); 
 
   const resetFilters = () => {
     setStartDate('');

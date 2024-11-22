@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import { getUserData, logoutUser } from '../services/auth';
 
 const SessionManager = ({ onLogin, onLogout, onTableSelect, inactivityLimit = 3600000 }) => {
-  const timeoutIdRef = useRef(null); 
+  const timeoutIdRef = useRef(null);
 
   useEffect(() => {
     const startInactivityTimer = () => {
@@ -13,17 +13,17 @@ const SessionManager = ({ onLogin, onLogout, onTableSelect, inactivityLimit = 36
 
     const resetInactivityTimer = () => {
       clearTimeout(timeoutIdRef.current);
-      startInactivityTimer(); 
+      startInactivityTimer();
     };
 
     const handleLogout = async () => {
       console.log('Handling logout due to inactivity');
-      clearTimeout(timeoutIdRef.current); 
+      clearTimeout(timeoutIdRef.current);
       const { error } = await logoutUser();
       if (!error) {
         console.log('Logout successful');
         localStorage.removeItem('userData');
-        localStorage.removeItem('selectedTable'); 
+        localStorage.removeItem('selectedTable');
         onLogout();
       } else {
         console.log('Error during logout:', error);
@@ -35,19 +35,18 @@ const SessionManager = ({ onLogin, onLogout, onTableSelect, inactivityLimit = 36
       const storedUserData = localStorage.getItem('userData');
       if (storedUserData) {
         const userData = JSON.parse(storedUserData);
-        onLogin(userData); 
+        onLogin(userData);  
         startInactivityTimer();
 
-        
         const storedTable = localStorage.getItem('selectedTable');
         if (storedTable) {
-          onTableSelect(storedTable); 
+          onTableSelect(storedTable);  
         }
       } else {
         const userData = await getUserData();
         if (userData) {
           localStorage.setItem('userData', JSON.stringify(userData));
-          onLogin(userData);
+          onLogin(userData);  
           startInactivityTimer();
         }
       }
@@ -60,11 +59,11 @@ const SessionManager = ({ onLogin, onLogout, onTableSelect, inactivityLimit = 36
 
     return () => {
       console.log('Cleaning up session manager');
-      clearTimeout(timeoutIdRef.current); 
+      clearTimeout(timeoutIdRef.current);
       window.removeEventListener('mousemove', resetInactivityTimer);
       window.removeEventListener('keydown', resetInactivityTimer);
     };
-  }, [onLogin, onLogout, onTableSelect, inactivityLimit]); 
+  }, [onLogin, onLogout, onTableSelect, inactivityLimit]);
 
   return null;
 };
