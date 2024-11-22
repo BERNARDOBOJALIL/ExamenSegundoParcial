@@ -13,7 +13,6 @@ const SkeletonMenu = () => {
         <div
           key={index}
           className="rounded-lg p-4 shadow-md border border-green-300"
-          style={{ minHeight: '100px' }} 
         >
           <Skeleton className="h-6 w-2/3 mb-2" />
           <Skeleton className="h-4 w-1/3 mb-2" />
@@ -32,15 +31,20 @@ const Menu = ({ addToOrder, order, setOrder, userName, selectedTable, setSelecte
   const navigate = useNavigate();
 
   useEffect(() => {
-    getMenu()
-      .then((data) => {
+    const unsubscribe = getMenu(
+      (data) => {
         setMenuItems(data);
         setIsLoading(false);
-      })
-      .catch((error) => {
+      },
+      (error) => {
         setError(error.message);
         setIsLoading(false);
-      });
+      }
+    );
+
+    return () => {
+      unsubscribe(); 
+    };
   }, []);
 
   useEffect(() => {

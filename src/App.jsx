@@ -26,6 +26,8 @@ function App() {
   const [userName, setUserName] = useState('');
   const [selectedTable, setSelectedTable] = useState(null);
 
+
+
   useEffect(() => {
     if (userName && selectedTable) {
       const savedOrder = localStorage.getItem(`order_${userName}_${selectedTable}`);
@@ -203,7 +205,7 @@ function App() {
                     <AdminDashboard 
                       isAuthenticated={isAuthenticated} 
                       onLogout={handleLogout} 
-                      userName={userName} 
+                      userName={userName}
                     />
                   ) : (
                     <Menu
