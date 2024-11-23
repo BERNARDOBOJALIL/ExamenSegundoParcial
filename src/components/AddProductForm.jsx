@@ -334,7 +334,7 @@ const AddProductForm = () => {
               <div className="flex justify-center gap-4">
                 <button
                   onClick={closeModal}
-                  className="px-4 py-2 bg-gray-300  flex items-center gap-2 hover:bg-gray-400 rounded-lg"
+                  className="px-4 py-2 bg-gray-300 text-gray-700 flex items-center gap-2 hover:bg-gray-400 rounded-lg"
                 >
                   <FaTimesCircle /> Cancelar
                 </button>
@@ -349,7 +349,7 @@ const AddProductForm = () => {
               <div className="flex justify-center gap-4">
                 <button
                   onClick={closeModal}
-                  className="px-4 py-2 bg-blue-500 text-white  flex items-center gap-2 hover:bg-blue-600 rounded-lg"
+                  className="px-4 py-2  bg-gray-300 text-gray-700  flex items-center gap-2  hover:bg-gray-400 rounded-lg"
                 >
                   <FaTimesCircle /> Cerrar
                 </button>
