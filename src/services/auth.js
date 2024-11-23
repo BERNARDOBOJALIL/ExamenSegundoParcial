@@ -85,7 +85,7 @@ const loginWithGoogle = async () => {
       await setDoc(userDoc, {
         name: user.displayName,
         email: user.email,
-        role: 'user',
+        role: 'client',
         createdAt: serverTimestamp(),
         card: null 
       });

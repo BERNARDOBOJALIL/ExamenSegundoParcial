@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { FaUpload, FaCheckCircle, FaSpinner, FaInfoCircle } from 'react-icons/fa';
+import { FaUpload, FaCheckCircle, FaSpinner, FaTrash, FaExclamationTriangle } from 'react-icons/fa';
 import { getMenu } from '../services/menuApi';
-import { registerProduct, updateProduct, uploadImage } from '../services/productService';
+import { registerProduct, updateProduct, deleteProduct, uploadImage, deleteImage } from '../services/productService';
 
 const AddProductForm = () => {
   const [productName, setProductName] = useState('');
@@ -12,6 +12,7 @@ const AddProductForm = () => {
   const [imageFile, setImageFile] = useState(null);
   const [modalMessage, setModalMessage] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [confirmationAction, setConfirmationAction] = useState(null);
   const [loading, setLoading] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState('');
   const [menuItems, setMenuItems] = useState([]);
@@ -49,18 +50,35 @@ const AddProductForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (!productName || !category || !description || !price) {
       setModalMessage('Por favor, complete todos los campos.');
       setIsModalOpen(true);
       return;
     }
 
-    setLoading(true);
+    const action = selectedProduct ? 'edit' : 'add';
+    setConfirmationAction(() => () => handleSaveProduct(action));
+    setModalMessage(
+      `¿Estás seguro de que quieres ${selectedProduct ? 'actualizar' : 'registrar'} este producto?`
+    );
+    setIsModalOpen(true);
+  };
 
+  const handleDelete = () => {
+    setConfirmationAction(() => handleDeleteProduct);
+    setModalMessage('¿Estás seguro de que quieres eliminar este producto? Esta acción no se puede deshacer.');
+    setIsModalOpen(true);
+  };
+
+  const handleSaveProduct = async (action) => {
+    setLoading(true);
     try {
       let imageUrl = selectedProduct ? menuItems.find((item) => item.id === selectedProduct)?.image : '';
+
       if (imageFile) {
+        if (selectedProduct && imageUrl) {
+          await deleteImage(imageUrl); // Elimina la imagen anterior si se actualiza
+        }
         imageUrl = await uploadImage(imageFile);
       }
 
@@ -70,10 +88,10 @@ const AddProductForm = () => {
         Description: description,
         Price: parseFloat(price),
         Image: imageUrl,
-        Available: selectedProduct ? availableState : true, // Nuevo producto siempre es `true`
+        Available: availableState,
       };
 
-      if (selectedProduct) {
+      if (action === 'edit') {
         await updateProduct(selectedProduct, product);
         setModalMessage('Producto actualizado exitosamente.');
       } else {
@@ -96,6 +114,25 @@ const AddProductForm = () => {
     }
   };
 
+  const handleDeleteProduct = async () => {
+    setLoading(true);
+    try {
+      const product = menuItems.find((item) => item.id === selectedProduct);
+      if (product?.image) {
+        await deleteImage(product.image); // Elimina la imagen del producto
+      }
+      await deleteProduct(selectedProduct);
+      setModalMessage('Producto eliminado exitosamente.');
+      setSelectedProduct('');
+    } catch (error) {
+      console.error('Error al eliminar el producto:', error);
+      setModalMessage('Error al eliminar el producto. Inténtalo de nuevo.');
+    } finally {
+      setLoading(false);
+      setIsModalOpen(true);
+    }
+  };
+
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -106,6 +143,7 @@ const AddProductForm = () => {
   const closeModal = () => {
     setModalMessage('');
     setIsModalOpen(false);
+    setConfirmationAction(null);
   };
 
   return (
@@ -237,6 +275,23 @@ const AddProductForm = () => {
                 <option value="true">Disponible</option>
                 <option value="false">No disponible</option>
               </select>
+              <div className="flex flex-col gap-2">
+                <label
+                  htmlFor="file-upload"
+                  className="bg-orange-500 text-white px-4 py-2 rounded-lg cursor-pointer flex items-center gap-2 hover:bg-orange-600 transition"
+                >
+                  <FaUpload />
+                  Subir nueva imagen
+                </label>
+                <input
+                  id="file-upload"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="hidden"
+                />
+                {imageFile && <p className="text-gray-600 truncate">{imageFile.name}</p>}
+              </div>
               <button
                 type="submit"
                 className="bg-green-500 text-white px-5 py-3 rounded-lg flex items-center gap-2 hover:bg-green-600 transition"
@@ -245,9 +300,41 @@ const AddProductForm = () => {
                 {loading ? <FaSpinner className="animate-spin text-white text-lg" /> : <FaCheckCircle />}
                 Actualizar Producto
               </button>
+              <button
+                type="button"
+                className="bg-red-500 text-white px-5 py-3 rounded-lg flex items-center gap-2 hover:bg-red-600 transition"
+                onClick={handleDelete}
+                disabled={loading}
+              >
+                {loading ? <FaSpinner className="animate-spin text-white text-lg" /> : <FaTrash />}
+                Eliminar Producto
+              </button>
             </form>
           </TabsContent>
         </Tabs>
+
+        {/* Modal de confirmación */}
+        {isModalOpen && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+            <div className="bg-white p-6 rounded-lg shadow-lg">
+              <p className="text-lg mb-4">{modalMessage}</p>
+              <div className="flex justify-end gap-4">
+                <button
+                  onClick={closeModal}
+                  className="px-4 py-2 bg-gray-300 hover:bg-gray-400 rounded-lg"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={confirmationAction}
+                  className="px-4 py-2 bg-blue-500 text-white hover:bg-blue-600 rounded-lg"
+                >
+                  Confirmar
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -58,7 +58,7 @@ const LoginForm = ({ setIsAuthenticated }) => {
         <div className="max-w-md w-full space-y-8 p-8 bg-[#F5F5DC] rounded-lg shadow-lg">
           <div>
             <img
-              src="\Designer-removebg-preview.png"
+            src = "https://firebasestorage.googleapis.com/v0/b/app-restaurante-bbl.firebasestorage.app/o/images%2Flogo.png?alt=media&token=080da74e-63f8-4c1c-856b-72165cd28237"
               alt="Mexican Restaurant Logo"
               className="mx-auto h-48 w-auto"
             />
