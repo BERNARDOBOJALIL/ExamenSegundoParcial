@@ -183,22 +183,22 @@ const Tables = () => {
           {deleteTableId ? (
             <>
               <button
-                onClick={handleDeleteTable}
-                className="bg-red-500 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-red-600 transition"
-              >
-                <FaCheckCircle /> Confirmar
-              </button>
-              <button
                 onClick={closeModal}
                 className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-gray-400 transition"
               >
                 <FaTimesCircle /> Cancelar
               </button>
+              <button
+                onClick={handleDeleteTable}
+                className="bg-blue-500 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-blue-600 transition"
+              >
+                <FaCheckCircle /> Confirmar
+              </button>
             </>
           ) : (
             <button
               onClick={closeModal}
-              className="bg-yellow-500 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-yellow-600 transition"
+              className="bg-gray-300  text-gray-700 px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-gray-400 transition"
             >
               <FaTimesCircle /> Cerrar
             </button>

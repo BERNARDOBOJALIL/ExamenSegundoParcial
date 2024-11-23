@@ -4,6 +4,16 @@ import { Timestamp } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import {generateEmailMessage} from '../services/emailService'
 import { createCard, getCard, getUID } from '@/services/paymentsService';
+import {
+  FaPlusCircle,
+  FaCheckCircle,
+  FaTimesCircle,
+  FaSpinner,
+  FaUtensils,
+  FaIdBadge,
+  FaTrashAlt,
+  FaInfoCircle,
+} from 'react-icons/fa';
 import Modal from 'react-modal';
 
 const Payment = ({ order, clearOrder, clientName, selectedTable }) => {
@@ -78,6 +88,9 @@ const Payment = ({ order, clearOrder, clientName, selectedTable }) => {
     }
     else{
       await upload_payment_database();
+      setPaymentStatus('success')
+      setIsCardModalOpen(true);
+      return;
     }
     
   };
@@ -99,14 +112,11 @@ const Payment = ({ order, clearOrder, clientName, selectedTable }) => {
 
     try {
       const uid_order = await addOrder(orderData);
-      alert('Orden guardada en la base de datos.');
       //TODO Quitar comentarios de los mails
       //await generateEmailMessage(orderData, uid_order);
       clearOrder();
-      navigate('/');
     } catch (error) {
       console.error('Error al guardar la orden:', error);
-      alert('Hubo un problema al guardar la orden.');
     }
   }
 
@@ -132,6 +142,12 @@ const Payment = ({ order, clearOrder, clientName, selectedTable }) => {
       }
     }
   };
+
+  const handleCardModal = () =>{
+    setPaymentStatus(null);
+    setIsCardModalOpen(false);
+    if (paymentStatus === 'success') {navigate('/')};
+  }
 
   return (
     <div className="mb-50 mt-10 p-6 bg-white shadow-lg rounded-lg border-2 border-green-500">
@@ -205,10 +221,10 @@ const Payment = ({ order, clearOrder, clientName, selectedTable }) => {
         onClick={handlePay}
         className={`mt-5 w-full ${
           order.length === 0 ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'
-        } text-white px-4 py-2 rounded-lg`}
+        } text-white px-4 py-2 gap-2 flex items-center justify-center rounded-lg`}
         disabled={order.length === 0}
       >
-        Pagar
+        <FaCheckCircle /> Pagar
       </button>
 
       <Modal
@@ -221,7 +237,7 @@ const Payment = ({ order, clearOrder, clientName, selectedTable }) => {
         className="fixed inset-0 flex items-center justify-center z-50"
         overlayClassName="fixed inset-0 bg-black bg-opacity-50"
       >
-        {paymentStatus === null ? (
+        {paymentStatus === null & paymentMethod !== 'cash' ? (
           <div className="bg-white rounded-lg p-6 shadow-lg w-96 relative">
             <button
               onClick={() => setIsCardModalOpen(false)}
@@ -308,9 +324,9 @@ const Payment = ({ order, clearOrder, clientName, selectedTable }) => {
               <button
                 type="button"
                 onClick={handleCardSubmit}
-                className="w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg"
+                className="w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 gap-2 items-center justify-center flex rounded-lg"
               >
-                Pagar
+                <FaCheckCircle /> Pagar
               </button>
             </form>
           </div>
@@ -321,39 +337,34 @@ const Payment = ({ order, clearOrder, clientName, selectedTable }) => {
             }`}
           >
             <button
-              onClick={() => {
-                setPaymentStatus(null);
-                setIsCardModalOpen(false);
-              }}
+              onClick={handleCardModal}
               className="absolute top-3 right-3 text-gray-600 hover:text-gray-900"
             >
               ✕
             </button>
-            <div className="text-center">
+            <div className="text-center" >
               {paymentStatus === 'success' ? (
-                <>
-                  <div className="text-green-500 text-4xl mb-4">✔</div>
-                  <h2 className="text-xl font-bold text-green-500">SUCCESS</h2>
-                  <p>Pago procesado con exito.</p>
-                </>
+                <div className="flex flex-col justify-center items-center">
+                  <div className="text-green-500 text-4xl mb-4"><FaCheckCircle /></div>
+                  <h2 className="text-xl font-bold text-green-500">ÉXITO</h2>
+                  {paymentMethod === 'cash' ? <p>Pronto llegara un mesero con su cuenta.</p> :
+                  <p>Pago procesado con éxito.</p>} 
+                </div>
               ) : (
-                <>
-                  <div className="text-red-500 text-4xl mb-4">✖</div>
+                <div className="flex flex-col justify-center items-center">
+                  <div className="text-red-500 text-4xl mb-4"><FaTimesCircle /></div>
                   <h2 className="text-xl font-bold text-red-500">ERROR</h2>
                   <p>Hubo un error procesando el pago. Intente después.</p>
-                </>
+                </div>
               )}
             </div>
             <button
-              onClick={() => {
-                setPaymentStatus(null);
-                setIsCardModalOpen(false);
-              }}
+              onClick={handleCardModal}
               className={`mt-4 w-full ${
-                paymentStatus === 'success' ? 'bg-green-500' : 'bg-red-500'
-              } hover:opacity-90 text-white px-4 py-2 rounded-lg`}
+                paymentStatus === 'success' ? 'bg-blue-500 text-white hover:bg-blue-600' : 'bg-gray-300 text-gray-700 hover:bg-gray-400'
+              }   px-4 py-2 rounded-lg flex justify-center items-center gap-2`}
             >
-              Continuar
+              {paymentStatus === 'success' ? <FaCheckCircle /> : <FaTimesCircle />}Continuar
             </button>
           </div>
         )}

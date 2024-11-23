@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { FaUpload, FaCheckCircle, FaSpinner, FaTrash, FaExclamationTriangle } from 'react-icons/fa';
+import { FaUpload, FaTimesCircle, FaCheckCircle, FaSpinner, FaTrash, FaInfoCircle, FaExclamationTriangle } from 'react-icons/fa';
 import { getMenu } from '../services/menuApi';
 import { registerProduct, updateProduct, deleteProduct, uploadImage, deleteImage } from '../services/productService';
 
@@ -12,6 +12,7 @@ const AddProductForm = () => {
   const [imageFile, setImageFile] = useState(null);
   const [modalMessage, setModalMessage] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isConfirmation, setIsConfirmation] = useState(false);
   const [confirmationAction, setConfirmationAction] = useState(null);
   const [loading, setLoading] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState('');
@@ -52,6 +53,7 @@ const AddProductForm = () => {
     e.preventDefault();
     if (!productName || !category || !description || !price) {
       setModalMessage('Por favor, complete todos los campos.');
+      setIsConfirmation(false);
       setIsModalOpen(true);
       return;
     }
@@ -61,12 +63,14 @@ const AddProductForm = () => {
     setModalMessage(
       `¿Estás seguro de que quieres ${selectedProduct ? 'actualizar' : 'registrar'} este producto?`
     );
+    setIsConfirmation(true);
     setIsModalOpen(true);
   };
 
   const handleDelete = () => {
     setConfirmationAction(() => handleDeleteProduct);
     setModalMessage('¿Estás seguro de que quieres eliminar este producto? Esta acción no se puede deshacer.');
+    setIsConfirmation(true);
     setIsModalOpen(true);
   };
 
@@ -94,9 +98,11 @@ const AddProductForm = () => {
       if (action === 'edit') {
         await updateProduct(selectedProduct, product);
         setModalMessage('Producto actualizado exitosamente.');
+        setIsConfirmation(false);
       } else {
         await registerProduct(product);
         setModalMessage('Producto registrado exitosamente.');
+        setIsConfirmation(false);
       }
 
       setProductName('');
@@ -108,6 +114,7 @@ const AddProductForm = () => {
     } catch (error) {
       console.error('Error al guardar el producto:', error);
       setModalMessage('Error al guardar el producto. Inténtalo de nuevo.');
+      setIsConfirmation(false);
     } finally {
       setLoading(false);
       setIsModalOpen(true);
@@ -123,10 +130,12 @@ const AddProductForm = () => {
       }
       await deleteProduct(selectedProduct);
       setModalMessage('Producto eliminado exitosamente.');
+      setIsConfirmation(false);
       setSelectedProduct('');
     } catch (error) {
       console.error('Error al eliminar el producto:', error);
       setModalMessage('Error al eliminar el producto. Inténtalo de nuevo.');
+      setIsConfirmation(false);
     } finally {
       setLoading(false);
       setIsModalOpen(true);
@@ -142,6 +151,7 @@ const AddProductForm = () => {
 
   const closeModal = () => {
     setModalMessage('');
+    setIsConfirmation(false);
     setIsModalOpen(false);
     setConfirmationAction(null);
   };
@@ -316,22 +326,35 @@ const AddProductForm = () => {
         {/* Modal de confirmación */}
         {isModalOpen && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-            <div className="bg-white p-6 rounded-lg shadow-lg">
-              <p className="text-lg mb-4">{modalMessage}</p>
-              <div className="flex justify-end gap-4">
+            <div className="bg-white p-6 rounded-lg shadow-lg justify-center items-center gap-2">
+              <div className='flex items-center justify-center gap-2'>
+                <FaInfoCircle className="text-yellow-500" /> <p className="text-lg mb-4">{modalMessage}</p>
+             </div>
+              {isConfirmation ? 
+              <div className="flex justify-center gap-4">
                 <button
                   onClick={closeModal}
-                  className="px-4 py-2 bg-gray-300 hover:bg-gray-400 rounded-lg"
+                  className="px-4 py-2 bg-gray-300  flex items-center gap-2 hover:bg-gray-400 rounded-lg"
                 >
-                  Cancelar
+                  <FaTimesCircle /> Cancelar
                 </button>
                 <button
                   onClick={confirmationAction}
-                  className="px-4 py-2 bg-blue-500 text-white hover:bg-blue-600 rounded-lg"
+                  className="px-4 py-2 bg-blue-500 text-white  flex items-center gap-2 hover:bg-blue-600 rounded-lg"
                 >
-                  Confirmar
+                  <FaCheckCircle /> Confirmar
                 </button>
               </div>
+              :
+              <div className="flex justify-center gap-4">
+                <button
+                  onClick={closeModal}
+                  className="px-4 py-2 bg-blue-500 text-white  flex items-center gap-2 hover:bg-blue-600 rounded-lg"
+                >
+                  <FaTimesCircle /> Cerrar
+                </button>
+              </div>
+              }
             </div>
           </div>
         )}
