@@ -161,7 +161,7 @@ const Payment = ({ order, clearOrder, clientName, selectedTable }) => {
         />
         <button
           onClick={handleApplyDiscount}
-          className="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-lg"
+          className="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-lg mt-4"
         >
           Aplicar
         </button>
