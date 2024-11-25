@@ -21,7 +21,7 @@ const Payment = ({ order, clearOrder, clientName, selectedTable }) => {
     name: "",
   });
   const [hasCard, setHasCard] = useState(false);
-  const [paymentStatus, setPaymentStatus] = useState(null); // null, 'success', 'error'
+  const [paymentStatus, setPaymentStatus] = useState(null); 
   const navigate = useNavigate();
 
   useEffect(() => {

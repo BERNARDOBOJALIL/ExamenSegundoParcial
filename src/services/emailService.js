@@ -28,7 +28,7 @@ const generateEmailMessage = async (order, uid) => {
         <strong>Cliente:</strong> ${client || "No especificado"}<br>
         <strong>Fecha:</strong> ${date}<br>
         <strong>Método de Pago:</strong> ${payment}<br>
-        <strong>Total:</strong> $${total.toFixed(2)}<br>
+        <strong>Total:</strong> $${total}<br>
         <strong>Número de Mesa:</strong> ${table_number || "N/A"}<br>
         <strong>ID de Orden:</strong> ${uid}
       </p>
