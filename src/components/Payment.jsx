@@ -112,8 +112,7 @@ const Payment = ({ order, clearOrder, clientName, selectedTable }) => {
 
     try {
       const uid_order = await addOrder(orderData);
-      //TODO Quitar comentarios de los mails
-      //await generateEmailMessage(orderData, uid_order);
+      await generateEmailMessage(orderData, uid_order);
       clearOrder();
     } catch (error) {
       console.error('Error al guardar la orden:', error);
@@ -135,7 +134,7 @@ const Payment = ({ order, clearOrder, clientName, selectedTable }) => {
           const uid = await userUID(); 
           await createCard(cardDetails.cardNumber, uid);
         }
-        upload_payment_database();
+        await upload_payment_database();
       }
       catch(e){
         console.error("Error: ", e);
