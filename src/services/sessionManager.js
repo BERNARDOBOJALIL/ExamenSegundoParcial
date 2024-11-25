@@ -1,7 +1,12 @@
-import { useEffect, useRef } from 'react';
-import { getUserData, logoutUser } from '../services/auth';
+import { useEffect, useRef } from "react";
+import { getUserData, logoutUser } from "../services/auth";
 
-const SessionManager = ({ onLogin, onLogout, onTableSelect, inactivityLimit = 3600000 }) => {
+const SessionManager = ({
+  onLogin,
+  onLogout,
+  onTableSelect,
+  inactivityLimit = 3600000,
+}) => {
   const timeoutIdRef = useRef(null);
 
   useEffect(() => {
@@ -17,36 +22,31 @@ const SessionManager = ({ onLogin, onLogout, onTableSelect, inactivityLimit = 36
     };
 
     const handleLogout = async () => {
-      console.log('Handling logout due to inactivity');
       clearTimeout(timeoutIdRef.current);
       const { error } = await logoutUser();
       if (!error) {
-        console.log('Logout successful');
-        localStorage.removeItem('userData');
-        localStorage.removeItem('selectedTable');
+        localStorage.removeItem("userData");
+        localStorage.removeItem("selectedTable");
         onLogout();
-      } else {
-        console.log('Error during logout:', error);
       }
     };
 
     const initializeSession = async () => {
-      console.log('Initializing session...');
-      const storedUserData = localStorage.getItem('userData');
+      const storedUserData = localStorage.getItem("userData");
       if (storedUserData) {
         const userData = JSON.parse(storedUserData);
-        onLogin(userData);  
+        onLogin(userData);
         startInactivityTimer();
 
-        const storedTable = localStorage.getItem('selectedTable');
+        const storedTable = localStorage.getItem("selectedTable");
         if (storedTable) {
-          onTableSelect(storedTable);  
+          onTableSelect(storedTable);
         }
       } else {
         const userData = await getUserData();
         if (userData) {
-          localStorage.setItem('userData', JSON.stringify(userData));
-          onLogin(userData);  
+          localStorage.setItem("userData", JSON.stringify(userData));
+          onLogin(userData);
           startInactivityTimer();
         }
       }
@@ -54,14 +54,13 @@ const SessionManager = ({ onLogin, onLogout, onTableSelect, inactivityLimit = 36
 
     initializeSession();
 
-    window.addEventListener('mousemove', resetInactivityTimer);
-    window.addEventListener('keydown', resetInactivityTimer);
+    window.addEventListener("mousemove", resetInactivityTimer);
+    window.addEventListener("keydown", resetInactivityTimer);
 
     return () => {
-      console.log('Cleaning up session manager');
       clearTimeout(timeoutIdRef.current);
-      window.removeEventListener('mousemove', resetInactivityTimer);
-      window.removeEventListener('keydown', resetInactivityTimer);
+      window.removeEventListener("mousemove", resetInactivityTimer);
+      window.removeEventListener("keydown", resetInactivityTimer);
     };
   }, [onLogin, onLogout, onTableSelect, inactivityLimit]);
 

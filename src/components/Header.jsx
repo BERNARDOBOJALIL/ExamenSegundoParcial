@@ -2,7 +2,13 @@ import { Link } from "react-router-dom";
 import { useState } from "react";
 import { FiMenu, FiX } from "react-icons/fi";
 
-const Header = ({ isAuthenticated, isAdmin, isEmployee, onLogout, userName }) => {
+const Header = ({
+  isAuthenticated,
+  isAdmin,
+  isEmployee,
+  onLogout,
+  userName,
+}) => {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const toggleMenu = () => {
@@ -38,7 +44,7 @@ const Header = ({ isAuthenticated, isAdmin, isEmployee, onLogout, userName }) =>
                     Hola, <span className="font-semibold">{userName}</span>!
                   </p>
                 </div>
-                {!isAdmin && !isEmployee && ( 
+                {!isAdmin && !isEmployee && (
                   <Link
                     to="/history"
                     className="block px-4 py-2 text-left hover:bg-red-600 hover:text-white transition duration-200"

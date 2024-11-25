@@ -8,7 +8,6 @@ const Order = ({
   decreaseQuantity,
   removeFromOrder,
   clearOrder,
-  addToOrder,
   userName,
   selectedTable,
 }) => {
@@ -43,13 +42,11 @@ const Order = ({
                   key={item.id}
                   className="flex flex-col md:flex-row items-center justify-between p-3 bg-gray-100 shadow-md rounded-lg"
                 >
-                  {/* Nombre y botones */}
                   <div className="flex items-center w-full md:w-2/3 space-x-4">
                     <div className="flex flex-col space-y-1">
                       <span
-                        className="font-semibold text-gray-700 truncate w-32"
+                        className="font-semibold text-gray-700 truncate w-36"
                         title={item.name}
-                      
                       >
                         {item.name}
                       </span>
@@ -76,7 +73,6 @@ const Order = ({
                     </div>
                   </div>
 
-                  {/* Precio total y botón eliminar */}
                   <div className="flex items-center justify-between w-full md:w-auto space-x-4 mt-2 md:mt-0">
                     <span className="text-green-700 font-bold">
                       ${item.price * item.quantity}
@@ -92,9 +88,7 @@ const Order = ({
                         viewBox="0 0 24 24"
                         fill="currentColor"
                       >
-                        <path
-                          d="M9 3V4H4V6H5V20C5 21.1 5.9 22 7 22H17C18.1 22 19 21.1 19 20V6H20V4H15V3H9ZM7 6H17V20H7V6Z"
-                        />
+                        <path d="M9 3V4H4V6H5V20C5 21.1 5.9 22 7 22H17C18.1 22 19 21.1 19 20V6H20V4H15V3H9ZM7 6H17V20H7V6Z" />
                       </svg>
                     </button>
                   </div>

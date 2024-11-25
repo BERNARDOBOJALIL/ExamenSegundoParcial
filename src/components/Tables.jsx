@@ -1,8 +1,12 @@
-import React, { useEffect, useState } from 'react';
-import { db } from '../services/firebaseConfig'; 
-import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
-import { createTable, updateTableState, deleteTable } from '../services/tablesService';
-import Modal from 'react-modal';
+import React, { useEffect, useState } from "react";
+import { db } from "../services/firebaseConfig";
+import { collection, query, orderBy, onSnapshot } from "firebase/firestore";
+import {
+  createTable,
+  updateTableState,
+  deleteTable,
+} from "../services/tablesService";
+import Modal from "react-modal";
 import {
   FaPlusCircle,
   FaCheckCircle,
@@ -12,19 +16,19 @@ import {
   FaIdBadge,
   FaTrashAlt,
   FaInfoCircle,
-} from 'react-icons/fa';
+} from "react-icons/fa";
 
 const Tables = () => {
   const [tables, setTables] = useState([]);
-  const [newTableNumber, setNewTableNumber] = useState('');
-  const [modalMessage, setModalMessage] = useState('');
+  const [newTableNumber, setNewTableNumber] = useState("");
+  const [modalMessage, setModalMessage] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [deleteTableId, setDeleteTableId] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const tablesCollection = collection(db, 'Tables');
-    const tablesQuery = query(tablesCollection, orderBy('Table_number', 'asc'));
+    const tablesCollection = collection(db, "Tables");
+    const tablesQuery = query(tablesCollection, orderBy("Table_number", "asc"));
 
     const unsubscribe = onSnapshot(
       tablesQuery,
@@ -37,7 +41,6 @@ const Tables = () => {
         setLoading(false);
       },
       (error) => {
-        console.error('Error al escuchar cambios en Firestore:', error);
         setLoading(false);
       }
     );
@@ -48,18 +51,17 @@ const Tables = () => {
   const handleCreateTable = async (e) => {
     e.preventDefault();
     if (!newTableNumber || isNaN(Number(newTableNumber))) {
-      setModalMessage('Por favor, ingrese un número válido.');
+      setModalMessage("Por favor, ingrese un número válido.");
       setIsModalOpen(true);
       return;
     }
 
     try {
       await createTable(newTableNumber);
-      setNewTableNumber('');
-      setModalMessage('Mesa creada exitosamente.');
+      setNewTableNumber("");
+      setModalMessage("Mesa creada exitosamente.");
     } catch (error) {
-      console.error('Error al crear la mesa:', error);
-      setModalMessage('Error al crear la mesa. Inténtalo de nuevo.');
+      setModalMessage("Error al crear la mesa. Inténtalo de nuevo.");
     } finally {
       setIsModalOpen(true);
     }
@@ -69,9 +71,7 @@ const Tables = () => {
     try {
       const newState = !currentState;
       await updateTableState(tableId, newState);
-    } catch (error) {
-      console.error('Error al actualizar el estado de la mesa:', error);
-    }
+    } catch (error) {}
   };
 
   const handleDeleteTable = async () => {
@@ -80,20 +80,18 @@ const Tables = () => {
         await deleteTable(deleteTableId);
         closeModal();
       }
-    } catch (error) {
-      console.error('Error al eliminar la mesa:', error);
-    }
+    } catch (error) {}
   };
 
   const closeModal = () => {
-    setModalMessage('');
+    setModalMessage("");
     setIsModalOpen(false);
     setDeleteTableId(null);
   };
 
   const openDeleteModal = (tableId) => {
     setDeleteTableId(tableId);
-    setModalMessage('¿Estás seguro de que deseas eliminar esta mesa?');
+    setModalMessage("¿Estás seguro de que deseas eliminar esta mesa?");
     setIsModalOpen(true);
   };
 
@@ -122,7 +120,8 @@ const Tables = () => {
 
       {loading ? (
         <div className="text-center text-lg text-gray-700">
-          <FaSpinner className="animate-spin text-yellow-500 text-2xl" /> Cargando mesas...
+          <FaSpinner className="animate-spin text-yellow-500 text-2xl" />{" "}
+          Cargando mesas...
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -130,7 +129,9 @@ const Tables = () => {
             <div
               key={table.id}
               className={`p-6 rounded-lg shadow-lg flex flex-col items-start ${
-                table.State ? 'border-4 border-red-500 bg-red-100' : 'border-4 border-green-500 bg-green-100'
+                table.State
+                  ? "border-4 border-red-500 bg-red-100"
+                  : "border-4 border-green-500 bg-green-100"
               }`}
             >
               <h3 className="text-xl font-semibold mb-2 flex items-center gap-2">
@@ -141,22 +142,27 @@ const Tables = () => {
               </p>
               <p className="text-gray-700 flex items-center gap-2">
                 <FaTimesCircle
-                  className={table.State ? 'text-red-500' : 'hidden'}
+                  className={table.State ? "text-red-500" : "hidden"}
                 />
                 <FaCheckCircle
-                  className={!table.State ? 'text-green-500' : 'hidden'}
-                />{' '}
-                Estado: <span className="font-bold">{table.State ? 'Deshabilitada' : 'Habilitada'}</span>
+                  className={!table.State ? "text-green-500" : "hidden"}
+                />{" "}
+                Estado:{" "}
+                <span className="font-bold">
+                  {table.State ? "Deshabilitada" : "Habilitada"}
+                </span>
               </p>
               <div className="flex gap-4 mt-4">
                 <button
                   onClick={() => toggleTableState(table.id, table.State)}
                   className={`px-4 py-2 rounded-lg text-white flex items-center gap-2 transition ${
-                    table.State ? 'bg-green-500 hover:bg-green-600' : 'bg-red-500 hover:bg-red-600'
+                    table.State
+                      ? "bg-green-500 hover:bg-green-600"
+                      : "bg-red-500 hover:bg-red-600"
                   }`}
                 >
-                  {table.State ? <FaCheckCircle /> : <FaTimesCircle />}{' '}
-                  {table.State ? 'Habilitar' : 'Inhabilitar'}
+                  {table.State ? <FaCheckCircle /> : <FaTimesCircle />}{" "}
+                  {table.State ? "Habilitar" : "Inhabilitar"}
                 </button>
                 <button
                   onClick={() => openDeleteModal(table.id)}

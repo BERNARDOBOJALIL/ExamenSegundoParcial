@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { getMenu } from '../services/menuApi';
-import TableSelector from './TablesSelector';
-import { Skeleton } from './ui/skeleton';
-import { FaChair, FaHistory } from 'react-icons/fa'; // Librería de iconos (react-icons)
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { getMenu } from "../services/menuApi";
+import TableSelector from "./TablesSelector";
+import { Skeleton } from "./ui/skeleton";
+import { FaChair, FaHistory } from "react-icons/fa";
 
 const SkeletonMenu = () => {
   const skeletonsCount = Math.ceil(window.innerHeight / 100);
@@ -23,9 +23,14 @@ const SkeletonMenu = () => {
   );
 };
 
-const Menu = ({ addToOrder, order, setOrder, userName, selectedTable, setSelectedTable }) => {
+const Menu = ({
+  order,
+  setOrder,
+  selectedTable,
+  setSelectedTable,
+}) => {
   const [menuItems, setMenuItems] = useState([]);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [expandedCategory, setExpandedCategory] = useState(null);
   const [expandedItemId, setExpandedItemId] = useState(null);
@@ -33,7 +38,7 @@ const Menu = ({ addToOrder, order, setOrder, userName, selectedTable, setSelecte
   const navigate = useNavigate();
 
   useEffect(() => {
-    const savedTable = localStorage.getItem('selectedTable');
+    const savedTable = localStorage.getItem("selectedTable");
     if (savedTable) {
       setSelectedTable(savedTable);
       setShowInitialButtons(false);
@@ -42,12 +47,12 @@ const Menu = ({ addToOrder, order, setOrder, userName, selectedTable, setSelecte
 
   const handleSelectTable = (tableNumber) => {
     setSelectedTable(tableNumber);
-    localStorage.setItem('selectedTable', tableNumber);
+    localStorage.setItem("selectedTable", tableNumber);
     setShowInitialButtons(false);
   };
 
   const goToHistory = () => {
-    navigate('/history');
+    navigate("/history");
   };
 
   const handleAddToOrder = (item) => {
@@ -80,28 +85,31 @@ const Menu = ({ addToOrder, order, setOrder, userName, selectedTable, setSelecte
     };
   }, []);
 
-  const categories = Array.from(new Set(menuItems.map((item) => item.category)));
+  const categories = Array.from(
+    new Set(menuItems.map((item) => item.category))
+  );
 
   if (showInitialButtons) {
     return (
       <div className="h-screen flex flex-col items-center justify-center bg-yellow-100">
-        <h2 className="text-3xl font-bold text-green-700 mb-12">Qué quieres hacer hoy?</h2>
+        <h2 className="text-3xl font-bold text-green-700 mb-12">
+          ¿Qué quieres hacer hoy?
+        </h2>
         <button
           className="bg-yellow-500 hover:bg-yellow-600 text-black font-bold flex flex-col items-center justify-center w-56 h-56 rounded-xl shadow-lg transform transition-transform duration-200 hover:scale-110 mb-6 p-4"
           onClick={() => setShowInitialButtons(false)}
         >
-          <FaChair className="text-4xl mb-2" /> 
+          <FaChair className="text-4xl mb-2" />
           <span className="text-lg">Seleccionar Mesa</span>
         </button>
         <button
           className="bg-yellow-500 hover:bg-yellow-600 text-black font-bold flex flex-col items-center justify-center w-56 h-56 rounded-xl shadow-lg transform transition-transform duration-200 hover:scale-110 p-4"
           onClick={goToHistory}
         >
-          <FaHistory className="text-4xl mb-2" /> 
+          <FaHistory className="text-4xl mb-2" />
           <span className="text-lg">Ver Historial</span>
         </button>
       </div>
-
     );
   }
 
@@ -117,7 +125,9 @@ const Menu = ({ addToOrder, order, setOrder, userName, selectedTable, setSelecte
             <SkeletonMenu />
           ) : (
             <div className="mt-16 max-h-[720px] overflow-y-auto space-y-4">
-              <h2 className="text-2xl font-semibold text-green-700">Nuestro Menú</h2>
+              <h2 className="text-2xl font-semibold text-green-700">
+                Nuestro Menú
+              </h2>
               {categories.map((category) => (
                 <div
                   key={category}
@@ -135,7 +145,7 @@ const Menu = ({ addToOrder, order, setOrder, userName, selectedTable, setSelecte
                       {category}
                     </h3>
                     <span className="text-xl">
-                      {expandedCategory === category ? '▲' : '▼'}
+                      {expandedCategory === category ? "▲" : "▼"}
                     </span>
                   </div>
                   {expandedCategory === category && (
@@ -147,8 +157,8 @@ const Menu = ({ addToOrder, order, setOrder, userName, selectedTable, setSelecte
                             key={item.id}
                             className={`p-4 bg-gray-100 shadow-lg rounded-lg border-2 border-gray-300 transition-all duration-300 ${
                               expandedItemId === item.id
-                                ? 'min-h-[400px]'
-                                : 'min-h-[150px]'
+                                ? "min-h-[400px]"
+                                : "min-h-[150px]"
                             } overflow-hidden cursor-pointer`}
                             onClick={() =>
                               setExpandedItemId(
@@ -197,17 +207,19 @@ const Menu = ({ addToOrder, order, setOrder, userName, selectedTable, setSelecte
           )}
           {order.length > 0 && (
             <button
-              onClick={() => navigate('/cart')}
+              onClick={() => navigate("/cart")}
               className="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg shadow-lg"
             >
-              Ver Carrito - Total: ${order.reduce((total, item) => total + item.price * item.quantity, 0)}
+              Ver Carrito - Total: $
+              {order.reduce(
+                (total, item) => total + item.price * item.quantity,
+                0
+              )}
             </button>
           )}
-
         </div>
       )}
     </div>
-    
   );
 };
 

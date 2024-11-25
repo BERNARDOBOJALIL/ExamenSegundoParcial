@@ -1,14 +1,14 @@
-import React, { useState } from 'react'; 
-import { loginUser, registerUser, loginWithGoogle } from '../services/auth';
+import React, { useState } from "react";
+import { loginUser, registerUser, loginWithGoogle } from "../services/auth";
 
 const LoginForm = ({ setIsAuthenticated }) => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [name, setName] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [name, setName] = useState("");
   const [error, setError] = useState(null);
   const [isRegistering, setIsRegistering] = useState(false);
-  const [registrationSuccess, setRegistrationSuccess] = useState(false); 
+  const [registrationSuccess, setRegistrationSuccess] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -16,15 +16,15 @@ const LoginForm = ({ setIsAuthenticated }) => {
 
     if (isRegistering) {
       if (password !== confirmPassword) {
-        setError('Las contraseñas no coinciden');
+        setError("Las contraseñas no coinciden");
         return;
       }
       const { user, error } = await registerUser(email, password, name);
       if (user) {
-        setRegistrationSuccess(true); 
+        setRegistrationSuccess(true);
         setTimeout(() => {
-          setRegistrationSuccess(false); 
-          setIsAuthenticated(true); 
+          setRegistrationSuccess(false);
+          setIsAuthenticated(true);
         }, 2000);
       }
       if (error) {
@@ -58,12 +58,12 @@ const LoginForm = ({ setIsAuthenticated }) => {
         <div className="max-w-md w-full space-y-8 p-8 bg-[#F5F5DC] rounded-lg shadow-lg">
           <div>
             <img
-            src = "https://firebasestorage.googleapis.com/v0/b/app-restaurante-bbl.firebasestorage.app/o/images%2Flogo.png?alt=media&token=080da74e-63f8-4c1c-856b-72165cd28237"
+              src="https://firebasestorage.googleapis.com/v0/b/app-restaurante-bbl.firebasestorage.app/o/images%2Flogo.png?alt=media&token=080da74e-63f8-4c1c-856b-72165cd28237"
               alt="Mexican Restaurant Logo"
               className="mx-auto h-48 w-auto"
             />
             <h2 className="mt-6 text-center text-3xl font-bold text-[#8B4513]">
-              {isRegistering ? 'Regístrate' : 'Iniciar Sesión'}
+              {isRegistering ? "Regístrate" : "Iniciar Sesión"}
             </h2>
           </div>
           <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
@@ -82,7 +82,10 @@ const LoginForm = ({ setIsAuthenticated }) => {
                 role="alert"
               >
                 <strong className="font-bold">¡Éxito!</strong>
-                <span className="block sm:inline"> Usuario creado con éxito</span>
+                <span className="block sm:inline">
+                  {" "}
+                  Usuario creado con éxito
+                </span>
               </div>
             )}
             <div className="rounded-md shadow-sm -space-y-px">
@@ -131,7 +134,7 @@ const LoginForm = ({ setIsAuthenticated }) => {
                   type="submit"
                   className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-[#8B4513] hover:bg-[#CD853F] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#D2691E]"
                 >
-                  {isRegistering ? 'Regístrate' : 'Iniciar Sesión'}
+                  {isRegistering ? "Regístrate" : "Iniciar Sesión"}
                 </button>
               </div>
             </div>
@@ -152,7 +155,7 @@ const LoginForm = ({ setIsAuthenticated }) => {
           <div className="text-sm text-center">
             {isRegistering ? (
               <p>
-                ¿Ya tienes una cuenta?{' '}
+                ¿Ya tienes una cuenta?{" "}
                 <button
                   onClick={() => {
                     setIsRegistering(false);
@@ -165,7 +168,7 @@ const LoginForm = ({ setIsAuthenticated }) => {
               </p>
             ) : (
               <p>
-                ¿No tienes una cuenta?{' '}
+                ¿No tienes una cuenta?{" "}
                 <button
                   onClick={() => {
                     setIsRegistering(true);

@@ -1,13 +1,13 @@
-import { Navigate } from 'react-router-dom';
+import { Navigate } from "react-router-dom";
 
 const PublicRoute = ({ children }) => {
-  const isAuthenticated = localStorage.getItem('userData'); 
+  const isAuthenticated = localStorage.getItem("userData");
 
   if (isAuthenticated) {
-    return <Navigate to="/" />; 
+    return <Navigate to="/" />;
   }
 
-  return children; 
+  return children;
 };
 
 export default PublicRoute;

@@ -24,7 +24,6 @@ const TableSelector = ({ onTableSelect }) => {
         setLoading(false);
       },
       (error) => {
-        console.error('Error al escuchar cambios en Firestore:', error);
         setLoading(false);
       }
     );
@@ -42,7 +41,6 @@ const TableSelector = ({ onTableSelect }) => {
       try {
         await updateTableState(selected.id);
       } catch (error) {
-        console.error('Error al actualizar el estado de la mesa:', error);
       }
     } else {
       alert('Esta mesa está ocupada. Selecciona otra mesa.');

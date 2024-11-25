@@ -1,43 +1,41 @@
-import { useState, useEffect } from 'react';
-import Menu from './components/Menu';
-import Order from './components/Order';
-import Header from './components/Header';
-import LoginForm from './components/LoginForm';
-import { loginUser, logoutUser, getUserData } from './services/auth';
-import SessionManager from './services/sessionManager';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import PrivateRoute from './components/PrivateRoute';
-import PublicRoute from './components/PublicRoute';
-import { resetTableState } from './services/tablesService';
-import AdminDashboard from './components/AdminDashboard';
-import UserHistory from './components/UserHistory';
-import OrderStatusAdmin from './components/OrderStatusAdmin'; 
-
-const menuItems = [
-  { id: 1, name: 'Tacos', price: 50 },
-  { id: 2, name: 'Enchiladas', price: 60 },
-  { id: 3, name: 'Quesadillas', price: 45 },
-  { id: 4, name: 'Pozole', price: 70 },
-];
+import { useState, useEffect } from "react";
+import Menu from "./components/Menu";
+import Order from "./components/Order";
+import Header from "./components/Header";
+import LoginForm from "./components/LoginForm";
+import { logoutUser, getUserData } from "./services/auth";
+import SessionManager from "./services/sessionManager";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import PrivateRoute from "./components/PrivateRoute";
+import PublicRoute from "./components/PublicRoute";
+import { resetTableState } from "./services/tablesService";
+import AdminDashboard from "./components/AdminDashboard";
+import UserHistory from "./components/UserHistory";
+import OrderStatusAdmin from "./components/OrderStatusAdmin";
 
 function App() {
   const [order, setOrder] = useState([]);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [isEmployee, setIsEmployee] = useState(false); 
+  const [isEmployee, setIsEmployee] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [userName, setUserName] = useState('');
+  const [userName, setUserName] = useState("");
   const [selectedTable, setSelectedTable] = useState(null);
 
   useEffect(() => {
     if (userName && selectedTable) {
-      const savedOrder = localStorage.getItem(`order_${userName}_${selectedTable}`);
+      const savedOrder = localStorage.getItem(
+        `order_${userName}_${selectedTable}`
+      );
       setOrder(savedOrder ? JSON.parse(savedOrder) : []);
     }
   }, [userName, selectedTable]);
 
   useEffect(() => {
     if (userName && selectedTable) {
-      localStorage.setItem(`order_${userName}_${selectedTable}`, JSON.stringify(order));
+      localStorage.setItem(
+        `order_${userName}_${selectedTable}`,
+        JSON.stringify(order)
+      );
     }
   }, [order, userName, selectedTable]);
 
@@ -45,8 +43,8 @@ function App() {
     const fetchUserRole = async () => {
       const userData = await getUserData();
       if (userData && userData.role) {
-        setIsAdmin(userData.role === 'admin');
-        setIsEmployee(userData.role === 'employee'); 
+        setIsAdmin(userData.role === "admin");
+        setIsEmployee(userData.role === "employee");
         setIsAuthenticated(true);
         setUserName(userData.name);
       }
@@ -61,37 +59,35 @@ function App() {
     const { error } = await logoutUser();
     if (!error) {
       if (selectedTable) {
-        console.log('Restableciendo el estado de la mesa:', selectedTable);
         await resetTableState(selectedTable);
       } else {
-        console.log('No hay mesa seleccionada para restablecer el estado.');
       }
 
       if (userName && selectedTable) {
         localStorage.removeItem(`order_${userName}_${selectedTable}`);
       }
 
-      localStorage.removeItem('userData');
-      localStorage.removeItem('selectedTable');
+      localStorage.removeItem("userData");
+      localStorage.removeItem("selectedTable");
       setIsAuthenticated(false);
       setIsAdmin(false);
-      setIsEmployee(false); 
-      setUserName('');
+      setIsEmployee(false);
+      setUserName("");
       setSelectedTable(null);
       setOrder([]);
-    } else {
-      console.error('Error logging out:', error);
     }
   };
 
   const handleTableSelect = (table) => {
     setSelectedTable(table);
-    localStorage.setItem('selectedTable', table);
+    localStorage.setItem("selectedTable", table);
   };
 
   const addToOrder = (item) => {
     setOrder((prevOrder) => {
-      const existingItem = prevOrder.find((orderItem) => orderItem.id === item.id);
+      const existingItem = prevOrder.find(
+        (orderItem) => orderItem.id === item.id
+      );
       return existingItem
         ? prevOrder.map((orderItem) =>
             orderItem.id === item.id
@@ -125,7 +121,9 @@ function App() {
   };
 
   const removeFromOrder = (item) => {
-    setOrder((prevOrder) => prevOrder.filter((orderItem) => orderItem.id !== item.id));
+    setOrder((prevOrder) =>
+      prevOrder.filter((orderItem) => orderItem.id !== item.id)
+    );
   };
 
   const clearOrder = () => {
@@ -134,8 +132,8 @@ function App() {
 
   const handleLogin = (userData) => {
     setIsAuthenticated(true);
-    setIsAdmin(userData.role === 'admin');
-    setIsEmployee(userData.role === 'employee'); 
+    setIsAdmin(userData.role === "admin");
+    setIsEmployee(userData.role === "employee");
     setUserName(userData.name);
   };
 
@@ -189,7 +187,6 @@ function App() {
                     decreaseQuantity={decreaseQuantity}
                     removeFromOrder={removeFromOrder}
                     clearOrder={clearOrder}
-                    menuItems={menuItems}
                     addToOrder={addToOrder}
                     userName={userName}
                     isAuthenticated={isAuthenticated}
@@ -206,13 +203,13 @@ function App() {
               element={
                 <PrivateRoute isAuthenticated={isAuthenticated}>
                   {isAdmin ? (
-                    <AdminDashboard 
-                      isAuthenticated={isAuthenticated} 
-                      onLogout={handleLogout} 
+                    <AdminDashboard
+                      isAuthenticated={isAuthenticated}
+                      onLogout={handleLogout}
                       userName={userName}
                     />
                   ) : isEmployee ? (
-                    <OrderStatusAdmin /> 
+                    <OrderStatusAdmin />
                   ) : (
                     <Menu
                       order={order}
@@ -220,7 +217,6 @@ function App() {
                       decreaseQuantity={decreaseQuantity}
                       removeFromOrder={removeFromOrder}
                       clearOrder={clearOrder}
-                      menuItems={menuItems}
                       addToOrder={addToOrder}
                       userName={userName}
                       isAuthenticated={isAuthenticated}

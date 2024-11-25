@@ -1,29 +1,39 @@
-import React, { useState, useEffect } from 'react';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { FaUpload, FaTimesCircle, FaCheckCircle, FaSpinner, FaTrash, FaInfoCircle, FaExclamationTriangle } from 'react-icons/fa';
-import { getMenu } from '../services/menuApi';
-import { registerProduct, updateProduct, deleteProduct, uploadImage, deleteImage } from '../services/productService';
+import React, { useState, useEffect } from "react";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import {
+  FaUpload,
+  FaTimesCircle,
+  FaCheckCircle,
+  FaSpinner,
+  FaTrash,
+  FaInfoCircle,
+} from "react-icons/fa";
+import { getMenu } from "../services/menuApi";
+import {
+  registerProduct,
+  updateProduct,
+  deleteProduct,
+  uploadImage,
+  deleteImage,
+} from "../services/productService";
 
 const AddProductForm = () => {
-  const [productName, setProductName] = useState('');
-  const [category, setCategory] = useState('');
-  const [description, setDescription] = useState('');
-  const [price, setPrice] = useState('');
+  const [productName, setProductName] = useState("");
+  const [category, setCategory] = useState("");
+  const [description, setDescription] = useState("");
+  const [price, setPrice] = useState("");
   const [imageFile, setImageFile] = useState(null);
-  const [modalMessage, setModalMessage] = useState('');
+  const [modalMessage, setModalMessage] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isConfirmation, setIsConfirmation] = useState(false);
   const [confirmationAction, setConfirmationAction] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState('');
+  const [selectedProduct, setSelectedProduct] = useState("");
   const [menuItems, setMenuItems] = useState([]);
   const [availableState, setAvailableState] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = getMenu(
-      (data) => setMenuItems(data),
-      (error) => console.error('Error al obtener el menú:', error)
-    );
+    const unsubscribe = getMenu((data) => setMenuItems(data));
 
     return () => {
       unsubscribe();
@@ -34,17 +44,17 @@ const AddProductForm = () => {
     if (selectedProduct) {
       const product = menuItems.find((item) => item.id === selectedProduct);
       if (product) {
-        setProductName(product.name || '');
-        setCategory(product.category || '');
-        setDescription(product.description || '');
-        setPrice(product.price || '');
+        setProductName(product.name || "");
+        setCategory(product.category || "");
+        setDescription(product.description || "");
+        setPrice(product.price || "");
         setAvailableState(product.available || false);
       }
     } else {
-      setProductName('');
-      setCategory('');
-      setDescription('');
-      setPrice('');
+      setProductName("");
+      setCategory("");
+      setDescription("");
+      setPrice("");
       setAvailableState(true);
     }
   }, [selectedProduct, menuItems]);
@@ -52,16 +62,18 @@ const AddProductForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!productName || !category || !description || !price) {
-      setModalMessage('Por favor, complete todos los campos.');
+      setModalMessage("Por favor, complete todos los campos.");
       setIsConfirmation(false);
       setIsModalOpen(true);
       return;
     }
 
-    const action = selectedProduct ? 'edit' : 'add';
+    const action = selectedProduct ? "edit" : "add";
     setConfirmationAction(() => () => handleSaveProduct(action));
     setModalMessage(
-      `¿Estás seguro de que quieres ${selectedProduct ? 'actualizar' : 'registrar'} este producto?`
+      `¿Estás seguro de que quieres ${
+        selectedProduct ? "actualizar" : "registrar"
+      } este producto?`
     );
     setIsConfirmation(true);
     setIsModalOpen(true);
@@ -69,7 +81,9 @@ const AddProductForm = () => {
 
   const handleDelete = () => {
     setConfirmationAction(() => handleDeleteProduct);
-    setModalMessage('¿Estás seguro de que quieres eliminar este producto? Esta acción no se puede deshacer.');
+    setModalMessage(
+      "¿Estás seguro de que quieres eliminar este producto? Esta acción no se puede deshacer."
+    );
     setIsConfirmation(true);
     setIsModalOpen(true);
   };
@@ -77,11 +91,13 @@ const AddProductForm = () => {
   const handleSaveProduct = async (action) => {
     setLoading(true);
     try {
-      let imageUrl = selectedProduct ? menuItems.find((item) => item.id === selectedProduct)?.image : '';
+      let imageUrl = selectedProduct
+        ? menuItems.find((item) => item.id === selectedProduct)?.image
+        : "";
 
       if (imageFile) {
         if (selectedProduct && imageUrl) {
-          await deleteImage(imageUrl); // Elimina la imagen anterior si se actualiza
+          await deleteImage(imageUrl);
         }
         imageUrl = await uploadImage(imageFile);
       }
@@ -95,25 +111,24 @@ const AddProductForm = () => {
         Available: availableState,
       };
 
-      if (action === 'edit') {
+      if (action === "edit") {
         await updateProduct(selectedProduct, product);
-        setModalMessage('Producto actualizado exitosamente.');
+        setModalMessage("Producto actualizado exitosamente.");
         setIsConfirmation(false);
       } else {
         await registerProduct(product);
-        setModalMessage('Producto registrado exitosamente.');
+        setModalMessage("Producto registrado exitosamente.");
         setIsConfirmation(false);
       }
 
-      setProductName('');
-      setCategory('');
-      setDescription('');
-      setPrice('');
+      setProductName("");
+      setCategory("");
+      setDescription("");
+      setPrice("");
       setImageFile(null);
-      setSelectedProduct('');
+      setSelectedProduct("");
     } catch (error) {
-      console.error('Error al guardar el producto:', error);
-      setModalMessage('Error al guardar el producto. Inténtalo de nuevo.');
+      setModalMessage("Error al guardar el producto. Inténtalo de nuevo.");
       setIsConfirmation(false);
     } finally {
       setLoading(false);
@@ -126,15 +141,14 @@ const AddProductForm = () => {
     try {
       const product = menuItems.find((item) => item.id === selectedProduct);
       if (product?.image) {
-        await deleteImage(product.image); // Elimina la imagen del producto
+        await deleteImage(product.image);
       }
       await deleteProduct(selectedProduct);
-      setModalMessage('Producto eliminado exitosamente.');
+      setModalMessage("Producto eliminado exitosamente.");
       setIsConfirmation(false);
-      setSelectedProduct('');
+      setSelectedProduct("");
     } catch (error) {
-      console.error('Error al eliminar el producto:', error);
-      setModalMessage('Error al eliminar el producto. Inténtalo de nuevo.');
+      setModalMessage("Error al eliminar el producto. Inténtalo de nuevo.");
       setIsConfirmation(false);
     } finally {
       setLoading(false);
@@ -150,7 +164,7 @@ const AddProductForm = () => {
   };
 
   const closeModal = () => {
-    setModalMessage('');
+    setModalMessage("");
     setIsConfirmation(false);
     setIsModalOpen(false);
     setConfirmationAction(null);
@@ -175,7 +189,6 @@ const AddProductForm = () => {
             </TabsTrigger>
           </TabsList>
 
-          {/* Registrar Producto */}
           <TabsContent value="register">
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
               <input
@@ -221,20 +234,25 @@ const AddProductForm = () => {
                   onChange={handleImageChange}
                   className="hidden"
                 />
-                {imageFile && <p className="text-gray-600 truncate">{imageFile.name}</p>}
+                {imageFile && (
+                  <p className="text-gray-600 truncate">{imageFile.name}</p>
+                )}
               </div>
               <button
                 type="submit"
                 className="bg-green-500 text-white px-5 py-3 rounded-lg flex items-center gap-2 hover:bg-green-600 transition"
                 disabled={loading}
               >
-                {loading ? <FaSpinner className="animate-spin text-white text-lg" /> : <FaCheckCircle />}
+                {loading ? (
+                  <FaSpinner className="animate-spin text-white text-lg" />
+                ) : (
+                  <FaCheckCircle />
+                )}
                 Registrar Producto
               </button>
             </form>
           </TabsContent>
 
-          {/* Editar Producto */}
           <TabsContent value="edit">
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
               <select
@@ -279,7 +297,7 @@ const AddProductForm = () => {
               />
               <select
                 value={availableState}
-                onChange={(e) => setAvailableState(e.target.value === 'true')}
+                onChange={(e) => setAvailableState(e.target.value === "true")}
                 className="p-3 bg-white border border-orange-300 rounded-lg focus:ring-2 focus:ring-orange-500"
               >
                 <option value="true">Disponible</option>
@@ -300,14 +318,20 @@ const AddProductForm = () => {
                   onChange={handleImageChange}
                   className="hidden"
                 />
-                {imageFile && <p className="text-gray-600 truncate">{imageFile.name}</p>}
+                {imageFile && (
+                  <p className="text-gray-600 truncate">{imageFile.name}</p>
+                )}
               </div>
               <button
                 type="submit"
                 className="bg-green-500 text-white px-5 py-3 rounded-lg flex items-center gap-2 hover:bg-green-600 transition"
                 disabled={loading}
               >
-                {loading ? <FaSpinner className="animate-spin text-white text-lg" /> : <FaCheckCircle />}
+                {loading ? (
+                  <FaSpinner className="animate-spin text-white text-lg" />
+                ) : (
+                  <FaCheckCircle />
+                )}
                 Actualizar Producto
               </button>
               <button
@@ -316,45 +340,49 @@ const AddProductForm = () => {
                 onClick={handleDelete}
                 disabled={loading}
               >
-                {loading ? <FaSpinner className="animate-spin text-white text-lg" /> : <FaTrash />}
+                {loading ? (
+                  <FaSpinner className="animate-spin text-white text-lg" />
+                ) : (
+                  <FaTrash />
+                )}
                 Eliminar Producto
               </button>
             </form>
           </TabsContent>
         </Tabs>
 
-        {/* Modal de confirmación */}
         {isModalOpen && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
             <div className="bg-white p-6 rounded-lg shadow-lg justify-center items-center gap-2">
-              <div className='flex items-center justify-center gap-2'>
-                <FaInfoCircle className="text-yellow-500" /> <p className="text-lg mb-4">{modalMessage}</p>
-             </div>
-              {isConfirmation ? 
-              <div className="flex justify-center gap-4">
-                <button
-                  onClick={closeModal}
-                  className="px-4 py-2 bg-gray-300 text-gray-700 flex items-center gap-2 hover:bg-gray-400 rounded-lg"
-                >
-                  <FaTimesCircle /> Cancelar
-                </button>
-                <button
-                  onClick={confirmationAction}
-                  className="px-4 py-2 bg-blue-500 text-white  flex items-center gap-2 hover:bg-blue-600 rounded-lg"
-                >
-                  <FaCheckCircle /> Confirmar
-                </button>
+              <div className="flex items-center justify-center gap-2">
+                <FaInfoCircle className="text-yellow-500" />{" "}
+                <p className="text-lg mb-4">{modalMessage}</p>
               </div>
-              :
-              <div className="flex justify-center gap-4">
-                <button
-                  onClick={closeModal}
-                  className="px-4 py-2  bg-gray-300 text-gray-700  flex items-center gap-2  hover:bg-gray-400 rounded-lg"
-                >
-                  <FaTimesCircle /> Cerrar
-                </button>
-              </div>
-              }
+              {isConfirmation ? (
+                <div className="flex justify-center gap-4">
+                  <button
+                    onClick={closeModal}
+                    className="px-4 py-2 bg-gray-300 text-gray-700 flex items-center gap-2 hover:bg-gray-400 rounded-lg"
+                  >
+                    <FaTimesCircle /> Cancelar
+                  </button>
+                  <button
+                    onClick={confirmationAction}
+                    className="px-4 py-2 bg-blue-500 text-white  flex items-center gap-2 hover:bg-blue-600 rounded-lg"
+                  >
+                    <FaCheckCircle /> Confirmar
+                  </button>
+                </div>
+              ) : (
+                <div className="flex justify-center gap-4">
+                  <button
+                    onClick={closeModal}
+                    className="px-4 py-2  bg-gray-300 text-gray-700  flex items-center gap-2  hover:bg-gray-400 rounded-lg"
+                  >
+                    <FaTimesCircle /> Cerrar
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         )}
