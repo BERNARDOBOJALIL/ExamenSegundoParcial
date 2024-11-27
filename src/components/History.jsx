@@ -44,7 +44,7 @@ function History({ isAuthenticated, onLogout, userName }) {
 
   return (
     <div>
-      <div className="mt-24 p-6 bg-amber-50 rounded-lg mt-6 shadow-md border-2 border-orange-400">
+      <div className="mt-28 p-6 bg-amber-50 rounded-lg mt-6 shadow-md border-2 border-orange-400">
         <div
           className="h-4 w-full bg-repeat-x mb-4"
           style={{
