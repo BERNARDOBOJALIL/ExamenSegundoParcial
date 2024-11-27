@@ -42,16 +42,14 @@ function History({ isAuthenticated, onLogout, userName }) {
 
   return (
     <div>
-      <div className="p-6 bg-amber-50 rounded-lg mt-6 shadow-md border-2 border-orange-400">
+      <div className="mt-28 p-6 bg-amber-50 rounded-lg mt-6 shadow-md border-2 border-orange-400">
         <div
           className="h-4 w-full bg-repeat-x mb-4"
           style={{
             backgroundImage: `url("data:image/svg+xml,%3Csvg width='20' height='4' viewBox='0 0 20 4' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h4l4 4 4-4h4' fill='none' stroke='%23EA580C' stroke-width='1'/%3E%3C/svg%3E")`,
           }}
         ></div>
-        <h3 className="text-2xl font-bold mb-4 text-orange-800">
-          Filtros y Ordenación
-        </h3>
+        <h3 className="text-2xl font-bold mb-4 text-orange-800">Filtros y Ordenación del Historial de Compras</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <div className="flex flex-col">
             <label className="text-sm font-semibold text-orange-700 mb-1">

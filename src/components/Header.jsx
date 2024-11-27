@@ -44,7 +44,38 @@ const Header = ({
                     Hola, <span className="font-semibold">{userName}</span>!
                   </p>
                 </div>
-                {!isAdmin && !isEmployee && (
+                {isAdmin ? (
+                  <>
+                    <Link
+                      to="/order-status"
+                      className="block px-4 py-2 text-left hover:bg-red-600 hover:text-white transition duration-200"
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      Ver Estados de Pedidos
+                    </Link>
+                    <Link
+                      to="/tables"
+                      className="block px-4 py-2 text-left hover:bg-red-600 hover:text-white transition duration-200"
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      Gestionar Mesas
+                    </Link>
+                    <Link
+                      to="/add-product"
+                      className="block px-4 py-2 text-left hover:bg-red-600 hover:text-white transition duration-200"
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      Agregar Producto
+                    </Link>
+                    <Link
+                      to="/admin-history"
+                      className="block px-4 py-2 text-left hover:bg-red-600 hover:text-white transition duration-200"
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      Mostrar Historial
+                    </Link>
+                  </>
+                ) : !isEmployee && (
                   <Link
                     to="/history"
                     className="block px-4 py-2 text-left hover:bg-red-600 hover:text-white transition duration-200"

@@ -1,17 +1,27 @@
-import { useState, useEffect } from "react";
-import Menu from "./components/Menu";
-import Order from "./components/Order";
-import Header from "./components/Header";
-import LoginForm from "./components/LoginForm";
-import { logoutUser, getUserData } from "./services/auth";
-import SessionManager from "./services/sessionManager";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import PrivateRoute from "./components/PrivateRoute";
-import PublicRoute from "./components/PublicRoute";
-import { resetTableState } from "./services/tablesService";
-import AdminDashboard from "./components/AdminDashboard";
-import UserHistory from "./components/UserHistory";
-import OrderStatusAdmin from "./components/OrderStatusAdmin";
+import { useState, useEffect } from 'react';
+import Menu from './components/Menu';
+import Order from './components/Order';
+import Header from './components/Header';
+import LoginForm from './components/LoginForm';
+import { loginUser, logoutUser, getUserData } from './services/auth';
+import SessionManager from './services/sessionManager';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import PrivateRoute from './components/PrivateRoute';
+import PublicRoute from './components/PublicRoute';
+import { resetTableState } from './services/tablesService';
+import AdminDashboard from './components/AdminDashboard';
+import UserHistory from './components/UserHistory';
+import OrderStatusAdmin from './components/OrderStatusAdmin';
+import Tables from './components/Tables';
+import AddProductForm from './components/AddProductForm';
+import History from './components/History';
+
+const menuItems = [
+  { id: 1, name: 'Tacos', price: 50 },
+  { id: 2, name: 'Enchiladas', price: 60 },
+  { id: 3, name: 'Quesadillas', price: 45 },
+  { id: 4, name: 'Pozole', price: 70 },
+];
 
 function App() {
   const [order, setOrder] = useState([]);
@@ -238,10 +248,47 @@ function App() {
                 </PrivateRoute>
               }
             />
+            <Route
+              path="/order-status"
+              element={
+                <PrivateRoute isAuthenticated={isAuthenticated}>
+                  <OrderStatusAdmin />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/tables"
+              element={
+                <PrivateRoute isAuthenticated={isAuthenticated}>
+                  <Tables />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/add-product"
+              element={
+                <PrivateRoute isAuthenticated={isAuthenticated}>
+                  <AddProductForm menuItems={menuItems} />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/admin-history"
+              element={
+                <PrivateRoute isAuthenticated={isAuthenticated}>
+                  <History 
+                    isAuthenticated={isAuthenticated} 
+                    onLogout={handleLogout} 
+                    userName={userName} 
+                  />
+                </PrivateRoute>
+              }
+            />
           </Routes>
         </div>
       </div>
     </Router>
+
   );
 }
 
