@@ -18,7 +18,7 @@ function AdminDashboard({ userName }) {
         <h2 className="text-xl font-semibold text-gray-700 mb-6 sm:mb-8">
           ¿Qué acción deseas realizar?
         </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-8 w-full">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-md mx-auto place-items-center">
           <button
             onClick={() => handleNavigation('/order-status')}
             className="bg-yellow-500 hover:bg-yellow-600 text-black font-bold flex flex-col items-center justify-center w-full sm:w-56 h-56 rounded-xl shadow-lg transform transition-transform duration-200 hover:scale-110"
