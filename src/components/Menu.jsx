@@ -85,7 +85,7 @@ const Menu = ({ addToOrder, order, setOrder, userName, selectedTable, setSelecte
   if (showInitialButtons) {
     return (
       <div className="h-screen flex flex-col items-center justify-center bg-yellow-100">
-        <h2 className="text-3xl font-bold text-green-700 mb-12">Qué quieres hacer hoy?</h2>
+        <h2 className="text-3xl font-bold text-green-700 mb-12">¿Qué quieres hacer hoy?</h2>
         <button
           className="bg-yellow-500 hover:bg-yellow-600 text-black font-bold flex flex-col items-center justify-center w-56 h-56 rounded-xl shadow-lg transform transition-transform duration-200 hover:scale-110 mb-6 p-4"
           onClick={() => setShowInitialButtons(false)}
