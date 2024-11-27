@@ -98,7 +98,7 @@ const Tables = () => {
   };
 
   return (
-    <div className="min-h-screen bg-yellow-100 p-5">
+    <div className="mt-14 in-h-screen bg-yellow-100 p-5">
       <div className="mb-6 p-6 bg-yellow-100 shadow rounded-lg">
         <h2 className="text-3xl font-bold mb-4 flex items-center gap-2">
           <FaPlusCircle className="text-yellow-600" /> Agregar nueva mesa

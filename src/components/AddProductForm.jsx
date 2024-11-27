@@ -157,7 +157,7 @@ const AddProductForm = () => {
   };
 
   return (
-    <div className="min-h-screen bg-yellow-100 p-5">
+    <div className="mt-24 min-h-screen bg-yellow-100 p-5">
       <div className="max-w-lg mx-auto p-6 bg-white shadow-md rounded-lg border border-orange-300">
         <Tabs defaultValue="register">
           <TabsList className="flex justify-center mb-4 bg-orange-50 rounded-lg p-1">

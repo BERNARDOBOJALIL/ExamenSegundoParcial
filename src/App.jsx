@@ -11,7 +11,10 @@ import PublicRoute from './components/PublicRoute';
 import { resetTableState } from './services/tablesService';
 import AdminDashboard from './components/AdminDashboard';
 import UserHistory from './components/UserHistory';
-import OrderStatusAdmin from './components/OrderStatusAdmin'; 
+import OrderStatusAdmin from './components/OrderStatusAdmin';
+import Tables from './components/Tables';
+import AddProductForm from './components/AddProductForm';
+import History from './components/History';
 
 const menuItems = [
   { id: 1, name: 'Tacos', price: 50 },
@@ -242,10 +245,47 @@ function App() {
                 </PrivateRoute>
               }
             />
+            <Route
+              path="/order-status"
+              element={
+                <PrivateRoute isAuthenticated={isAuthenticated}>
+                  <OrderStatusAdmin />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/tables"
+              element={
+                <PrivateRoute isAuthenticated={isAuthenticated}>
+                  <Tables />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/add-product"
+              element={
+                <PrivateRoute isAuthenticated={isAuthenticated}>
+                  <AddProductForm menuItems={menuItems} />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/admin-history"
+              element={
+                <PrivateRoute isAuthenticated={isAuthenticated}>
+                  <History 
+                    isAuthenticated={isAuthenticated} 
+                    onLogout={handleLogout} 
+                    userName={userName} 
+                  />
+                </PrivateRoute>
+              }
+            />
           </Routes>
         </div>
       </div>
     </Router>
+
   );
 }
 
